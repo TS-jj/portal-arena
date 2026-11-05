@@ -1035,7 +1035,19 @@
       var play = document.getElementById('play');
       var inGame = false;
       if (play) {
+        /* 16 MB of assets takes a while on a phone connection — a tap before the
+           last file arrives used to do nothing at all, which reads as "broken". */
+        if (!done) {
+          play.disabled = true;
+          var readyTimer = setInterval(function () {
+            if (!done) return;
+            clearInterval(readyTimer);
+            play.disabled = false;
+            play.textContent = '部署';
+          }, 300);
+        }
         play.addEventListener('click', function () {
+          if (!done) { toast('战场资源加载中 · 请稍候再部署', 2200); return; }
           inGame = true;
           applyGameSettings();
           body.classList.add('pa-ingame');
