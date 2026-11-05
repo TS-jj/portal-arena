@@ -1051,7 +1051,7 @@
           }, 250);
         }
         play.addEventListener('click', function () {
-          if (!done) { toast('战场资源加载中 · 请稍候再部署', 2200); return; }
+          if (play.disabled) { toast('战场资源加载中 · 请稍候再部署', 2200); return; }
           inGame = true;
           applyGameSettings();
           body.classList.add('pa-ingame');
