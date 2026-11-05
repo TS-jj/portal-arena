@@ -1,0 +1,223 @@
+<!DOCTYPE html><html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"/>
+<title>传送门战场 · PORTAL ARENA</title><meta name="description" content="传送门战场 — 4v4 第一人称团队竞技，穿越传送门，瞬移包抄，率先达成 30 次击杀。"/><meta name="theme-color" content="#0b0d10"/><meta name="color-scheme" content="dark"/><link rel="manifest" href="./manifest.webmanifest"/><meta name="mobile-web-app-capable" content="yes"/><meta name="apple-mobile-web-app-capable" content="yes"/><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/><meta name="apple-mobile-web-app-title" content="PORTAL ARENA"/><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b0d10'/%3E%3Crect x='9' y='5' width='14' height='22' rx='2' fill='none' stroke='%2335d8f2' stroke-width='2'/%3E%3Cpath d='M11 7h10v18H11z' fill='%2335d8f2' opacity='.55'/%3E%3C/svg%3E"/>
+<style>
+  :root { color-scheme: dark; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { height:100%; overflow:hidden; background:#0b0d10; font-family:"Barlow Condensed","Helvetica Neue",Arial,sans-serif; }
+  canvas { display:block; }
+
+  #hud { position:fixed; inset:0; pointer-events:none; user-select:none; }
+
+  /* crosshair: four bars whose gap tracks weapon spread */
+  #cross { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:80px; height:80px; }
+  #cross i { position:absolute; background:#e8f0e8; box-shadow:0 0 2px #000a; opacity:.85; }
+  #cross i.h { width:7px; height:2px; top:39px; }
+  #cross i.v { width:2px; height:7px; left:39px; }
+  #cross .dot { width:2px; height:2px; left:39px; top:39px; border-radius:50%; }
+
+  #hitmarker { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%) scale(1); opacity:0; }
+  #hitmarker svg { display:block; }
+
+  #bottomright { position:absolute; right:34px; bottom:26px; text-align:right; color:#fff; text-shadow:0 2px 6px #000c; }
+  #ammo { font-size:46px; font-weight:600; letter-spacing:1px; line-height:.95; }
+  #ammo small { font-size:22px; opacity:.6; font-weight:400; }
+  #wname { font-size:15px; letter-spacing:3px; text-transform:uppercase; opacity:.55; margin-top:2px; }
+  #firemode { font-size:12px; letter-spacing:2px; opacity:.4; }
+
+  #bottomleft { position:absolute; left:34px; bottom:26px; color:#fff; text-shadow:0 2px 6px #000c; }
+  #hpwrap { display:flex; align-items:flex-end; gap:10px; }
+  #hp { font-size:46px; font-weight:600; line-height:.95; }
+  #hpbar { width:190px; height:5px; background:#ffffff22; margin-top:9px; overflow:hidden; }
+  #hpbar u { display:block; height:100%; width:100%; background:#e2e8e2; transition:width .18s ease-out; }
+  #hpbar.low u { background:#d8483c; }
+
+  #slots { position:absolute; right:34px; bottom:120px; display:flex; flex-direction:column; gap:4px; align-items:flex-end; }
+  .slot { font-size:13px; letter-spacing:2px; color:#fff8; text-transform:uppercase; text-shadow:0 1px 4px #000; }
+  .slot.on { color:#fff; }
+  .slot b { display:inline-block; width:15px; color:#fff5; font-weight:400; }
+
+  #damage { position:absolute; inset:0; box-shadow:inset 0 0 190px 40px #8b0f0abb; opacity:0; transition:opacity .35s; }
+  #flash  { position:absolute; inset:0; background:#fff; opacity:0; }
+
+  #killfeed { position:absolute; right:34px; top:24px; text-align:right; font-size:14px; letter-spacing:1px; }
+  #killfeed div { color:#fff; text-shadow:0 1px 4px #000; margin-bottom:4px; opacity:.9; }
+  #killfeed em { font-style:normal; color:#ff6a5a; }
+  #killfeed b { font-weight:600; }
+
+  #score { position:absolute; left:50%; top:16px; transform:translateX(-50%); display:flex; gap:14px; white-space:nowrap;
+           font-size:24px; color:#fff; text-shadow:0 1px 5px #000; letter-spacing:2px; align-items:baseline; }
+  #score .team { display:flex; gap:9px; align-items:baseline; white-space:nowrap; flex:0 0 auto; }
+  #score b { font-size:12px; letter-spacing:3px; opacity:.75; font-weight:600; white-space:nowrap; }
+  #score i { font-style:normal; font-weight:600; font-variant-numeric:tabular-nums; }
+  #score .sep { opacity:.34; font-size:10px; letter-spacing:1px; white-space:nowrap; }
+  #goalbar { position:absolute; left:50%; top:42px; transform:translateX(-50%); display:flex; gap:8px; align-items:center; }
+  #goalbar .gb { width:110px; height:3px; background:#ffffff1f; overflow:hidden; }
+  #goalbar .gb u { display:block; height:100%; width:0%; background:#7fa8d8; transition:width .3s ease-out; }
+  #goalbar .gb:last-child u { float:right; background:#e8d44f; }
+  #goalbar span { font-size:10px; letter-spacing:2px; color:#fff8; text-shadow:0 1px 4px #000; }
+  #personal { position:absolute; left:50%; top:47px; transform:translateX(-50%); font-size:11px;
+              letter-spacing:3px; color:#fff7; text-shadow:0 1px 4px #000; white-space:nowrap; }
+
+  /* ally markers, drawn through walls -- the only reliable friend/foe cue at range */
+  #markers div { position:absolute; left:0; top:0; font-size:11px; letter-spacing:1px; white-space:nowrap;
+                 text-shadow:0 1px 4px #000, 0 0 2px #000; transform-origin:50% 100%; }
+  #markers div s { display:block; text-decoration:none; font-size:13px; line-height:.8; text-align:center; }
+  #markers div u { display:block; text-decoration:none; opacity:.55; font-size:9px; text-align:center; }
+  /* squad number chip: teammates are numbered 2-4, the player is 1 */
+  #markers div b.sq { display:inline-block; margin-right:4px; padding:0 3px; border-radius:3px;
+                      background:#2f7fe0; color:#fff; font-weight:800; font-size:9px; letter-spacing:0;
+                      vertical-align:1.5px; box-shadow:0 0 0 1px #0009; }
+
+  #death { position:absolute; inset:0; display:none; place-content:center center; text-align:center;
+           background:linear-gradient(#0000 35%, #200a08cc); color:#fff; }
+  #death.on, #matchend.on { display:grid; }
+  #death .big { font-size:56px; letter-spacing:14px; font-weight:600; text-shadow:0 3px 20px #000; }
+  #death .by { font-size:15px; letter-spacing:2px; opacity:.75; margin-top:10px; }
+  #death .cd { font-size:12px; letter-spacing:3px; opacity:.45; margin-top:26px; text-transform:uppercase; }
+  #death .cd span { font-variant-numeric:tabular-nums; color:#fff; opacity:.9; }
+
+  #matchend { position:absolute; inset:0; display:none; place-content:center center; text-align:center;
+              background:linear-gradient(#0008 30%, #0b0d10ee); color:#fff; pointer-events:auto; }
+  #matchend .big { font-size:64px; letter-spacing:18px; font-weight:600; text-shadow:0 3px 24px #000; }
+  #matchend .big.win { color:#8fd08f; }
+  #matchend .big.lose { color:#e06a5a; }
+  #matchend .final { font-size:26px; letter-spacing:4px; margin-top:14px; font-variant-numeric:tabular-nums; }
+  #matchend .me-kd { font-size:14px; letter-spacing:2px; opacity:.65; margin-top:10px; }
+  #matchend .cd { font-size:12px; letter-spacing:3px; opacity:.45; margin-top:30px; text-transform:uppercase; }
+  #matchend .cd span { font-variant-numeric:tabular-nums; color:#fff; opacity:.9; }
+  #start .mission { font-size:14px; letter-spacing:2px; color:#a8c8a0; margin-bottom:26px; opacity:.85; }
+
+  #scope { position:absolute; inset:0; opacity:0; pointer-events:none;
+           background:radial-gradient(circle at 50% 50%, transparent 0 27vh, #000 27.4vh);
+           transition:opacity .06s; }
+  #scope::after { content:""; position:absolute; inset:0;
+           background:linear-gradient(#0000 calc(50% - .5px), #000 50%, #0000 calc(50% + .5px)),
+                      linear-gradient(90deg, #0000 calc(50% - .5px), #000 50%, #0000 calc(50% + .5px)); }
+
+  #start { position:fixed; inset:0; background:#000; display:flex; pointer-events:auto; }
+  /* left half: live 3D portal showcase (StartArt) on plain black */
+  #start .art { flex:1 1 50%; position:relative; overflow:hidden; }
+  #start .art .artcap { position:absolute; left:0; right:0; bottom:9%; text-align:center; color:#dfe6df; z-index:1; }
+  #start .art .artcap b { display:block; font-size:17px; letter-spacing:6px; font-weight:600; }
+  #start .art .artcap span { display:block; font-size:13px; letter-spacing:2px; opacity:.55; margin-top:6px; }
+  #start .card { flex:1 1 50%; display:grid; place-content:center; text-align:center; color:#dfe6df; padding:0 6vw; }
+  #start h1 { font-size:40px; letter-spacing:6px; font-weight:600; margin-bottom:6px; }
+  #start h2 { font-size:13px; letter-spacing:4px; opacity:.4; margin-bottom:30px; text-transform:uppercase; }
+  #start .keys { display:grid; grid-template-columns:auto auto; gap:5px 16px; font-size:14px; opacity:.62; text-align:left;
+                 margin:0 auto 30px; width:max-content; }
+  #start .keys b { font-weight:600; color:#fff; }
+  #start button { pointer-events:auto; background:#e2e8e2; color:#0b0d10; border:0; padding:13px 40px;
+                  font:600 15px/1 inherit; letter-spacing:3px; cursor:pointer; text-transform:uppercase; }
+  #start button:hover { background:#fff; }
+  #loading { font-size:13px; opacity:.45; letter-spacing:2px; }
+
+  #stats { position:absolute; left:10px; top:8px; font:11px/1.5 ui-monospace,monospace; color:#8fdc9a99; white-space:pre; }
+  #minimap { position:absolute; left:16px; top:44px; width:200px; height:200px;
+    border:1px solid #ffffff40; border-radius:4px; background:#0a0c0e8c;
+    box-shadow:0 2px 12px #00000073; }
+  #portalhud { position:absolute; left:16px; top:252px; font-size:12px; line-height:1.8;
+    letter-spacing:2px; color:#fff; text-shadow:0 1px 4px #000; pointer-events:none; }
+  #portalhud .fl { animation:portalfl .45s steps(2,end) infinite; }
+  @keyframes portalfl { 50% { opacity:.2; } }
+</style>
+<script src="./enhance.js"></script>
+<script type="importmap">
+{ "imports": {
+    "three": "./vendor/three.module.js",
+    "three/addons/loaders/GLTFLoader.js": "./vendor/GLTFLoader.js",
+    "three/addons/objects/Sky.js": "./vendor/Sky.js",
+    "three/addons/utils/SkeletonUtils.js": "./vendor/utils/SkeletonUtils.js",
+    "three/addons/utils/BufferGeometryUtils.js": "./vendor/utils/BufferGeometryUtils.js"
+} }
+</script>
+  <script type="module" crossorigin="" src="./assets/index-Bjti5_AJ.js"></script>
+<link rel="stylesheet" href="./enhance.css"/>
+</head>
+<body>
+<template id="app-layout">
+<div id="hud">
+  <div id="damage"></div>
+  <div id="scope"></div>
+  <div id="flash"></div>
+  <div id="cross">
+    <i class="h" id="cl"></i><i class="h" id="cr"></i><i class="v" id="ct"></i><i class="v" id="cb"></i>
+    <i class="dot"></i>
+  </div>
+  <div id="hitmarker">
+    <svg width="26" height="26" viewBox="0 0 26 26">
+      <g stroke="#fff" stroke-width="2" stroke-linecap="square">
+        <line x1="4" y1="4" x2="9" y2="9"></line><line x1="22" y1="4" x2="17" y2="9"></line>
+        <line x1="4" y1="22" x2="9" y2="17"></line><line x1="22" y1="22" x2="17" y2="17"></line>
+      </g>
+    </svg>
+  </div>
+  <div id="score">
+    <span class="team"><b id="t1n">三角洲</b><i id="t1s">0</i></span>
+    <span class="sep" id="goal">50</span>
+    <span class="team"><i id="t2s">0</i><b id="t2n">侦察队</b></span>
+  </div>
+  <div id="goalbar"><div class="gb"><u id="gb1"></u></div><span id="goaltext">目标 50</span><div class="gb"><u id="gb2"></u></div></div>
+  <div id="personal"><span id="s-me">0</span> 击杀 · <span id="s-them">0</span> 阵亡</div>
+  <div id="markers"></div>
+  <div id="killfeed"></div>
+  <div id="slots"></div>
+  <div id="bottomright">
+    <div id="ammo">0<small> / 0</small></div>
+    <div id="wname">—</div>
+    <div id="firemode"></div>
+  </div>
+  <div id="bottomleft">
+    <div id="hpwrap"><div id="hp">100</div></div>
+    <div id="hpbar"><u></u></div>
+  </div>
+  <div id="stats"></div>
+  <canvas id="minimap" width="400" height="400"></canvas>
+  <div id="portalhud"></div>
+  <div id="death">
+    <div>
+      <div class="big">阵亡</div>
+      <div class="by" id="death-by"></div>
+      <div class="cd"><span id="death-cd">3.0</span> 秒后重生 · 点击跳过</div>
+    </div>
+  </div>
+  <div id="matchend">
+    <div>
+      <div class="big" id="me-title">胜利</div>
+      <div class="final" id="me-score"></div>
+      <div class="me-kd" id="me-kd"></div>
+      <div class="cd"><span id="me-cd">6.0</span> 秒后再战</div>
+    </div>
+  </div>
+</div>
+
+<div id="start"><div class="art">
+  <div class="artcap"><b>传送门</b><span>穿过即可瞬间转移</span></div>
+</div><div class="card">
+  <h1>传送门战场</h1>
+  <h2>多人第一人称竞技 · Three.js</h2>
+  <div class="mission" id="mission"></div>
+  <div class="keys">
+    <b>WASD</b><span>移动</span>
+    <b>Shift</b><span>冲刺</span>
+    <b>空格</b><span>跳跃</span>
+    <b>C / Ctrl</b><span>蹲伏 / 潜行</span>
+    <b>鼠标左键</b><span>开火</span>
+    <b>鼠标右键 / F</b><span>瞄准</span>
+    <b>R</b><span>换弹</span>
+    <b>1–4 / 滚轮</b><span>切换武器</span>
+    <b>V / G</b><span>近战 / 手雷</span>
+    <b>B</b><span>射击模式</span>
+  </div>
+  <div id="loading">正在加载资源…</div>
+  <button id="play" style="display:none">部署</button>
+</div></div>
+
+
+</template>
+<div id="root"></div>
+<div id="pa-fx"></div>
+
+
+</body></html>

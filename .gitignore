@@ -1,0 +1,6 @@
+# local QA artefacts — not part of the site
+qa-*.png
+preview-*.png
+node_modules/
+.DS_Store
+Thumbs.db

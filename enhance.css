@@ -1,0 +1,585 @@
+/* ==========================================================
+   PORTAL ARENA — Enhancement Layer
+   The original layout/CSS is kept byte-for-byte. Everything here
+   is additive: polish, feedback, settings, responsiveness.
+   ========================================================== */
+:root{
+  --pa-cyan:#35d8f2;
+  --pa-cyan-soft:rgba(53,216,242,.45);
+  --pa-line:rgba(223,230,223,.14);
+  --pa-panel:rgba(10,14,17,.93);
+}
+
+/* ---------- top utility bar ---------- */
+#pa-topbar{
+  position:fixed; inset:0 0 auto 0; height:56px; z-index:88;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 26px; pointer-events:none;
+}
+.pa-brand{
+  display:flex; align-items:center; gap:10px; user-select:none;
+  font-size:10px; letter-spacing:3px; text-transform:uppercase;
+  color:rgba(223,230,223,.30); transition:color .3s;
+}
+#pa-topbar:hover .pa-brand{ color:rgba(223,230,223,.5); }
+.pa-brand i{
+  display:block; width:12px; height:12px; border:1.5px solid rgba(53,216,242,.5);
+  border-radius:2px; transform:rotate(45deg); box-shadow:0 0 12px rgba(53,216,242,.22);
+}
+.pa-tools{ display:flex; gap:8px; pointer-events:auto; }
+.pa-icon{
+  width:32px; height:32px; display:grid; place-content:center; cursor:pointer;
+  border:1px solid var(--pa-line); border-radius:7px;
+  background:rgba(255,255,255,.025); color:rgba(223,230,223,.42);
+  transition:color .2s, border-color .2s, background .2s, box-shadow .2s, transform .2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.pa-icon svg{ width:15px; height:15px; display:block; }
+.pa-icon:hover{
+  color:#eaf6f7; border-color:rgba(53,216,242,.45);
+  background:rgba(53,216,242,.09); box-shadow:0 0 18px rgba(53,216,242,.13);
+  transform:translateY(-1px);
+}
+.pa-icon:active{ transform:translateY(0) scale(.94); }
+.pa-icon.on{ color:var(--pa-cyan); border-color:rgba(53,216,242,.5); }
+
+/* ---------- real loading progress (replaces the plain text) ---------- */
+/* Keep the original node in the DOM so load errors can be surfaced by JS,
+   but take it out of the visual layout. */
+#loading{ position:absolute; width:1px; height:1px; overflow:hidden; opacity:0; pointer-events:none; }
+#pa-loader{
+  width:288px; max-width:86vw; margin:0 auto 30px; text-align:center;
+  transition:opacity .35s ease, transform .35s ease;
+}
+#pa-loader.out{ opacity:0; transform:translateY(-6px); pointer-events:none; }
+.pa-load-row{
+  display:flex; justify-content:space-between; align-items:baseline;
+  font-size:11px; letter-spacing:2px; color:rgba(223,230,223,.5); margin-bottom:10px;
+}
+.pa-load-row b{
+  font-weight:600; color:var(--pa-cyan); font-variant-numeric:tabular-nums;
+  letter-spacing:1px; text-shadow:0 0 10px var(--pa-cyan-soft);
+}
+.pa-track{ height:2px; background:rgba(255,255,255,.1); position:relative; overflow:hidden; }
+.pa-track u{
+  display:block; height:100%; width:0%;
+  background:linear-gradient(90deg,#13788d,var(--pa-cyan));
+  box-shadow:0 0 12px var(--pa-cyan-soft);
+  transition:width .4s cubic-bezier(.22,.7,.3,1);
+}
+.pa-file{
+  font-size:10px; letter-spacing:1px; color:rgba(223,230,223,.24);
+  margin-top:10px; height:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+
+/* ---------- deploy button: subtle game-feel ---------- */
+#start #play{
+  position:relative; overflow:hidden;
+  transition:background .2s, box-shadow .3s, transform .12s, letter-spacing .3s;
+  box-shadow:0 0 0 rgba(226,232,226,0);
+}
+#start #play::after{
+  content:""; position:absolute; top:0; left:-150%; width:55%; height:100%;
+  background:linear-gradient(90deg,transparent,rgba(11,13,16,.17),transparent);
+  transform:skewX(-18deg); transition:left .65s ease;
+}
+#start #play:hover{ background:#fff; box-shadow:0 0 32px rgba(226,232,226,.20); letter-spacing:4px; }
+#start #play:hover::after{ left:160%; }
+#start #play:active{ transform:scale(.975); }
+
+/* ---------- portal ambience ---------- */
+#start .art::after{
+  content:""; position:absolute; inset:0; z-index:1; pointer-events:none;
+  background:radial-gradient(ellipse 44% 42% at 50% 47%, rgba(53,216,242,.075), transparent 74%);
+  animation:pa-breathe 6.5s ease-in-out infinite;
+}
+@keyframes pa-breathe{ 0%,100%{opacity:.5} 50%{opacity:1} }
+#start .art .artcap{ animation:pa-fadeup .9s .25s both; }
+#start .card > *{ animation:pa-fadein .7s both; }
+#start .card > h1{ animation-delay:.05s }
+#start .card > h2{ animation-delay:.12s }
+#start .card > .mission{ animation-delay:.19s }
+#start .card > .keys{ animation-delay:.26s }
+#start .card > #pa-loader{ animation-delay:.32s }
+#start .card > #play{ animation-delay:.38s }
+@keyframes pa-fadein{ from{opacity:0; transform:translateY(9px)} to{opacity:1; transform:none} }
+@keyframes pa-fadeup{ from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none} }
+.pa-mote{
+  position:absolute; width:2px; height:2px; border-radius:50%; z-index:2;
+  background:rgba(140,240,255,.75); box-shadow:0 0 7px rgba(53,216,242,.7);
+  pointer-events:none; animation:pa-rise linear infinite;
+}
+@keyframes pa-rise{
+  0%{ transform:translateY(0) scale(.6); opacity:0 }
+  18%{ opacity:.75 }
+  80%{ opacity:.4 }
+  100%{ transform:translateY(-170px) scale(1.1); opacity:0 }
+}
+
+/* ---------- corner badge (replaces the platform watermark) ---------- */
+#pa-badge{
+  position:fixed; right:16px; bottom:14px; z-index:65;
+  display:flex; align-items:center; gap:6px; padding:4px 9px 4px 5px;
+  border-radius:5px; background:rgba(240,244,240,.93); color:#0b0d10;
+  font-size:10px; font-weight:700; letter-spacing:1px; user-select:none;
+  box-shadow:0 2px 12px rgba(0,0,0,.45);
+}
+#pa-badge em{
+  font-style:normal; width:14px; height:14px; display:grid; place-content:center;
+  border-radius:3px; background:#0b0d10; color:#eaf6f7; font-size:8px; letter-spacing:0;
+}
+
+/* ---------- settings panel ---------- */
+#pa-panel{
+  position:fixed; top:64px; right:24px; width:306px; z-index:85;
+  max-height:calc(100vh - 90px); overflow-y:auto; display:none;
+  padding:18px 18px 20px; color:#dfe6df;
+  background:var(--pa-panel); border:1px solid rgba(255,255,255,.1); border-radius:12px;
+  box-shadow:0 24px 70px rgba(0,0,0,.62), inset 0 0 0 1px rgba(53,216,242,.05);
+  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+}
+#pa-panel.on{ display:block; animation:pa-pop .2s ease-out; }
+@keyframes pa-pop{ from{opacity:0; transform:translateY(-8px) scale(.98)} to{opacity:1; transform:none} }
+#pa-panel::-webkit-scrollbar{ width:5px }
+#pa-panel::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.16); border-radius:5px }
+.pa-panel-hd{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:4px; }
+.pa-panel-hd h3{ font-size:13px; letter-spacing:4px; font-weight:600; }
+.pa-panel-hd span{ font-size:10px; letter-spacing:1px; opacity:.32; }
+.pa-sec{
+  font-size:10px; letter-spacing:3px; opacity:.46; text-transform:uppercase;
+  margin:18px 0 10px; padding-bottom:7px; border-bottom:1px solid rgba(255,255,255,.07);
+}
+.pa-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin:11px 0; font-size:12px; letter-spacing:1px; }
+.pa-row > label{ opacity:.8; white-space:nowrap; }
+.pa-row output{ font-size:11px; opacity:.45; font-variant-numeric:tabular-nums; min-width:32px; text-align:right; }
+.pa-slider{
+  -webkit-appearance:none; appearance:none; flex:1; min-width:70px;
+  height:2px; border-radius:2px; outline:none; cursor:pointer;
+  background:rgba(255,255,255,.17);
+}
+.pa-slider::-webkit-slider-thumb{
+  -webkit-appearance:none; width:11px; height:11px; border-radius:50%;
+  background:var(--pa-cyan); box-shadow:0 0 10px var(--pa-cyan-soft); cursor:pointer;
+}
+.pa-slider::-moz-range-thumb{
+  width:11px; height:11px; border:0; border-radius:50%;
+  background:var(--pa-cyan); box-shadow:0 0 10px var(--pa-cyan-soft); cursor:pointer;
+}
+.pa-swatches{ display:flex; gap:7px; }
+.pa-swatch{
+  width:19px; height:19px; border-radius:5px; cursor:pointer;
+  border:1px solid rgba(255,255,255,.2); transition:transform .18s, box-shadow .18s;
+}
+.pa-swatch:hover{ transform:translateY(-2px); }
+.pa-swatch.on{ box-shadow:0 0 0 2px #0b0d10, 0 0 0 3px var(--pa-cyan); }
+.pa-toggle{
+  width:34px; height:18px; flex:none; position:relative; cursor:pointer;
+  border-radius:20px; border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.06); transition:.2s;
+}
+.pa-toggle::after{
+  content:""; position:absolute; top:2px; left:2px; width:12px; height:12px;
+  border-radius:50%; background:rgba(255,255,255,.55); transition:.2s;
+}
+.pa-toggle.on{ background:rgba(53,216,242,.22); border-color:rgba(53,216,242,.5); }
+.pa-toggle.on::after{ left:18px; background:var(--pa-cyan); }
+.pa-actions{ display:flex; gap:8px; margin-top:20px; }
+.pa-btn{
+  flex:1; padding:10px; border-radius:7px; cursor:pointer;
+  border:1px solid var(--pa-line); background:rgba(255,255,255,.04); color:#dfe6df;
+  font:600 11px/1 inherit; letter-spacing:2px; transition:.2s;
+}
+.pa-btn:hover{ background:rgba(53,216,242,.1); border-color:rgba(53,216,242,.4); }
+.pa-btn.primary{ background:#e2e8e2; color:#0b0d10; border-color:#e2e8e2; }
+.pa-btn.primary:hover{ background:#fff; }
+.pa-hint{ font-size:10px; line-height:1.75; opacity:.38; letter-spacing:1px; margin-top:14px; }
+
+/* ---------- in-game state ---------- */
+body.pa-ingame #pa-topbar{ opacity:.28; transition:opacity .25s; }
+body.pa-ingame #pa-topbar:hover{ opacity:1; }
+body.pa-ingame #pa-badge{ opacity:.25; transition:opacity .25s; }
+body.pa-ingame #pa-badge:hover{ opacity:1; }
+#pa-pausehint{
+  display:none; position:fixed; left:50%; top:78px; transform:translateX(-50%); z-index:66;
+  padding:7px 17px; border-radius:20px; white-space:nowrap;
+  background:rgba(10,14,17,.82); border:1px solid rgba(53,216,242,.22);
+  color:rgba(223,230,223,.72); font-size:11px; letter-spacing:3px;
+  backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+}
+body.pa-paused #pa-pausehint{ display:block; animation:pa-pop .25s ease-out; }
+#pa-vignette{
+  position:fixed; inset:0; z-index:40; pointer-events:none; opacity:0;
+  box-shadow:inset 0 0 190px 34px rgba(0,0,0,.5); transition:opacity .4s;
+}
+body.pa-ingame.pa-vignette #pa-vignette{ opacity:1; }
+
+/* live user preferences */
+#cross i, #cross .dot{ background:var(--pa-cross,#e8f0e8)!important; }
+#cross i.h{ width:var(--pa-cross-len,7px)!important; height:var(--pa-cross-thick,2px)!important; }
+#cross i.v{ height:var(--pa-cross-len,7px)!important; width:var(--pa-cross-thick,2px)!important; }
+/* A CSS filter on the game canvas creates a stacking context, which would
+   otherwise paint over the HUD. Keep the interface above the 3D layer. */
+#hud{ z-index:45; opacity:var(--pa-hud-op,1); }
+#start{ z-index:50; }
+#start .card{ transition:transform .32s cubic-bezier(.22,.7,.3,1); }
+body.pa-panel-open #start .card{ transform:translateX(-128px); }
+#minimap{ display:var(--pa-minimap,block); }
+#stats{ display:var(--pa-stats,block); }
+#markers{ display:var(--pa-markers,block); }
+body.pa-ingame canvas:not(#minimap){ filter:var(--pa-filter,none); }
+#killfeed div{ animation:pa-kill .28s ease-out; }
+@keyframes pa-kill{ from{ opacity:0; transform:translateX(14px) } to{ opacity:.9; transform:none } }
+
+/* ---------- embedded-window warning + lock help ---------- */
+#pa-frame-note{
+  display:none; align-items:center; gap:10px; justify-self:center;
+  margin:0 auto 22px; padding:8px 10px 8px 14px; border-radius:7px;
+  border:1px solid rgba(53,216,242,.26); background:rgba(53,216,242,.06);
+  font-size:11px; letter-spacing:1px; color:rgba(223,230,223,.75);
+}
+body.pa-framed #pa-frame-note{ display:inline-flex; }
+#pa-frame-note button{
+  border:0; border-radius:4px; padding:5px 10px; cursor:pointer; white-space:nowrap;
+  background:#e2e8e2; color:#0b0d10; font:600 10px/1 inherit; letter-spacing:1px;
+  transition:background .2s;
+}
+#pa-frame-note button:hover{ background:#fff; }
+
+#pa-lockhelp{
+  position:fixed; inset:0; z-index:96; display:none; place-content:center;
+  padding:24px; text-align:center; color:#dfe6df;
+  background:rgba(4,6,8,.88); backdrop-filter:blur(7px); -webkit-backdrop-filter:blur(7px);
+}
+#pa-lockhelp.on{ display:grid; animation:pa-pop .25s ease-out; }
+#pa-lockhelp .box{ max-width:380px; }
+#pa-lockhelp h4{ font-size:16px; letter-spacing:5px; font-weight:600; margin-bottom:12px; }
+#pa-lockhelp p{ font-size:12px; line-height:1.9; letter-spacing:1px; opacity:.6; margin-bottom:22px; }
+#pa-lockhelp .acts{ display:flex; gap:10px; justify-content:center; }
+#pa-lockhelp .acts .pa-btn{ flex:0 0 auto; min-width:132px; padding:11px 18px; }
+
+/* ---------- compatibility mode (container refuses pointer lock) ---------- */
+body.pa-fallback canvas:not(#minimap){ cursor:none; }
+#pa-fallback-bar{
+  display:none; position:fixed; left:50%; bottom:20px; transform:translateX(-50%);
+  z-index:66; padding:6px 15px; border-radius:16px; white-space:nowrap;
+  background:rgba(53,216,242,.12); border:1px solid rgba(53,216,242,.3);
+  color:rgba(223,230,223,.82); font-size:11px; letter-spacing:2px;
+  backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+}
+body.pa-fallback #pa-fallback-bar{ display:block; }
+body.pa-fallback.pa-paused #pa-fallback-bar{ display:none; }
+
+/* ---------- no webgl ---------- */
+#pa-nowebgl{
+  position:fixed; inset:0; z-index:97; display:grid; place-content:center;
+  padding:28px; text-align:center; background:#0b0d10; color:#dfe6df;
+}
+#pa-nowebgl h4{ font-size:17px; letter-spacing:5px; font-weight:600; margin-bottom:14px; }
+#pa-nowebgl p{ font-size:12px; line-height:2; letter-spacing:1px; opacity:.55; }
+
+/* ---------- toast ---------- */
+#pa-toast{
+  position:fixed; left:50%; bottom:44px; transform:translate(-50%,12px); z-index:95;
+  padding:10px 20px; border-radius:8px; pointer-events:none; opacity:0;
+  background:rgba(10,14,17,.9); border:1px solid rgba(53,216,242,.22);
+  color:rgba(223,230,223,.85); font-size:12px; letter-spacing:2px;
+  box-shadow:0 12px 40px rgba(0,0,0,.5); transition:opacity .3s, transform .3s;
+}
+#pa-toast.on{ opacity:1; transform:translate(-50%,0); }
+
+/* ---------- responsive: the original splits 50/50 at any width ---------- */
+@media (max-width:900px){
+  #pa-panel{ left:12px; right:12px; width:auto; }
+  #pa-topbar{ padding:0 14px; }
+  body.pa-panel-open #start .card{ transform:none; }
+}
+/* a phone held upright needs the stacked menu; a phone held sideways
+   (844x390 etc.) must keep the 50/50 row or the deploy button falls off-screen */
+@media (max-width:900px) and (orientation:portrait){
+  #start{ flex-direction:column; overflow-y:auto; }
+  #start .art{ flex:0 0 42vh; }
+  #start .art .artcap{ bottom:5%; }
+  #start .card{ padding:32px 24px 58px; }
+  #start h1{ font-size:32px; }
+  #start .keys{ font-size:13px; }
+}
+@media (max-height:560px) and (orientation:landscape){
+  #start{ overflow-y:auto; }
+  #start .card{ padding:0 4vw; }
+  #start h1{ font-size:24px; letter-spacing:4px; }
+  #start h2{ font-size:10px; letter-spacing:3px; margin-bottom:8px; }
+  #start .mission{ font-size:11px; letter-spacing:1px; margin-bottom:8px; }
+  #start .keys{ gap:1px 10px; font-size:10.5px; margin-bottom:10px; }
+  #start .art .artcap{ bottom:5%; }
+  #start .art .artcap b{ font-size:12px; letter-spacing:4px; }
+  #start .art .artcap span{ font-size:9px; letter-spacing:1px; }
+  #start #play{ padding:10px 32px; font-size:13px; }
+  #pa-loader{ margin-bottom:10px; }
+  #pa-topbar{ height:34px; }
+}
+@media (max-height:640px){
+  #start h2{ margin-bottom:16px; }
+  #start .mission{ margin-bottom:14px; }
+  #start .keys{ gap:2px 14px; margin-bottom:16px; font-size:12px; }
+  #pa-loader{ margin-bottom:18px; }
+  #start .art .artcap{ bottom:4%; }
+}
+@media (prefers-reduced-motion:reduce){
+  #start .card > *, #start .art .artcap, #start .art::after, .pa-mote{ animation:none!important; }
+}
+
+/* ==========================================================
+   Minimap legend + full-screen tactical map
+   ========================================================== */
+#pa-maplegend{
+  /* the canvas is appended after us and would paint over a z-index:auto layer */
+  position:absolute; left:16px; top:250px; z-index:47;
+  display:flex; align-items:center; gap:11px;
+  font-size:10.5px; letter-spacing:1px; color:#d6ded8d0; text-shadow:0 1px 3px #000;
+  background:rgba(8,10,12,.6); border:1px solid #ffffff1c; border-radius:6px;
+  padding:5px 9px; backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px);
+  pointer-events:none;
+}
+#pa-maplegend .lg{ display:flex; align-items:center; gap:4px; }
+#pa-maplegend s{ width:8px; height:8px; display:block; flex:0 0 auto; }
+#pa-maplegend .pa-lg-map{
+  pointer-events:auto; cursor:pointer; padding:2px 7px; border-radius:4px;
+  border:1px solid #ffffff26; background:#ffffff0a; color:#cfe0d3cc;
+}
+#pa-maplegend .pa-lg-map:hover{ background:#ffffff1a; color:#fff; }
+
+/* shape language shared by legend and both maps */
+s.self{ background:#8cf0a6; clip-path:polygon(50% 0, 100% 100%, 50% 68%, 0 100%); }
+s.ally{ background:#2f7fe0; border-radius:50%; }
+s.foe{ background:#ff3b30; clip-path:polygon(50% 0, 100% 100%, 0 100%); }
+s.portal{ background:#c58bff; transform:rotate(45deg); width:7px!important; height:7px!important; }
+s.big{ background:#9fb4a4; clip-path:polygon(0 0, 45% 0, 55% 100%, 100% 100%, 100% 55%, 0 45%); }
+
+#pa-bigmap{
+  position:fixed; inset:0; z-index:130; display:none;
+  background:rgba(5,7,9,.94); backdrop-filter:blur(9px); -webkit-backdrop-filter:blur(9px);
+}
+#pa-bigmap.on{ display:grid; place-content:center; justify-items:center; gap:13px; }
+#pa-bigmap canvas{
+  width:min(72vh,72vw); height:min(72vh,72vw); display:block;
+  border:1px solid #ffffff30; border-radius:6px; box-shadow:0 22px 64px #000a;
+}
+#pa-bigmap .hd{ display:flex; align-items:baseline; gap:11px; }
+#pa-bigmap .hd b{ font-size:15px; letter-spacing:5px; color:#e8eee8; font-weight:600; }
+#pa-bigmap .hd span{ font-size:10px; letter-spacing:3px; color:#ffffff42; }
+#pa-bigmap .lgd{ display:flex; gap:16px; font-size:11px; letter-spacing:1px; color:#cfd8d1b0; }
+#pa-bigmap .lg{ display:flex; align-items:center; gap:5px; }
+#pa-bigmap .lg s{ width:8px; height:8px; display:block; }
+
+/* settings: kill-limit chips */
+.pa-chips{ display:flex; gap:6px; }
+.pa-chip{
+  padding:5px 10px; border-radius:5px; border:1px solid #ffffff26; background:#ffffff0d;
+  color:#cfd8d1cc; font:600 11px/1 inherit; letter-spacing:1px; cursor:pointer;
+  transition:background .12s, color .12s, border-color .12s;
+}
+.pa-chip:hover{ background:#ffffff16; }
+.pa-chip.on{ background:#e2e8e2; border-color:#fff; color:#0b0d10; }
+
+/* ==========================================================
+   Touch controls — laid out like PUBG Mobile / 和平精英
+     left  corner : analogue movement wheel
+     right corner : one big fire button + aim / jump / crouch / reload
+     bottom centre: four weapon slots (tap to swap)
+   ========================================================== */
+#pa-touch{
+  display:none; position:fixed; inset:0; z-index:80; touch-action:none;
+  user-select:none; -webkit-user-select:none; -webkit-tap-highlight-color:transparent;
+}
+body.pa-touch-on #pa-touch{ display:block; }
+
+#pa-look{ position:absolute; inset:0; }
+
+#pa-stick{
+  position:absolute; left:calc(18px + env(safe-area-inset-left));
+  bottom:calc(18px + env(safe-area-inset-bottom));
+  width:138px; height:138px; border-radius:50%; touch-action:none;
+  border:1px solid rgba(255,255,255,.15); background:rgba(8,12,15,.3);
+  backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px);
+}
+#pa-stick i{
+  position:absolute; inset:26%; border-radius:50%;
+  border:1px dashed rgba(255,255,255,.11);
+}
+#pa-stick b{
+  position:absolute; left:50%; top:50%; width:60px; height:60px; margin:-30px 0 0 -30px;
+  border-radius:50%; background:rgba(53,216,242,.22);
+  border:1px solid rgba(53,216,242,.52); box-shadow:0 0 22px rgba(53,216,242,.24);
+  transition:transform .05s linear;
+}
+
+/* ---- buttons ---- */
+.pa-tb{
+  position:absolute; display:grid; place-content:center; padding:0; border-radius:50%;
+  border:1px solid rgba(255,255,255,.2); background:rgba(10,14,17,.44);
+  color:rgba(232,240,232,.92); font:600 12px/1 inherit; letter-spacing:1px;
+  backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); touch-action:none;
+  transition:transform .08s, background .12s, border-color .12s;
+}
+.pa-tb.on{ transform:scale(.93); background:rgba(53,216,242,.3); border-color:rgba(53,216,242,.62); }
+.pa-tb.latched{ background:rgba(53,216,242,.34); border-color:rgba(53,216,242,.72); color:#eafcff; }
+.pa-tb.fire{
+  background:rgba(214,74,58,.26); border-color:rgba(224,106,90,.55);
+  box-shadow:0 0 26px rgba(214,74,58,.18); color:#ffe9e4;
+}
+.pa-tb.fire.on{ background:rgba(224,106,90,.46); }
+
+.pa-fire-main{ right:calc(18px + env(safe-area-inset-right)); bottom:calc(18px + env(safe-area-inset-bottom)); width:104px; height:104px; font-size:14px; }
+.pa-aim{ right:calc(132px + env(safe-area-inset-right)); bottom:calc(22px + env(safe-area-inset-bottom)); width:64px; height:64px; }
+.pa-jump{ right:calc(22px + env(safe-area-inset-right)); bottom:calc(132px + env(safe-area-inset-bottom)); width:56px; height:56px; }
+.pa-crouch{ right:calc(86px + env(safe-area-inset-right)); bottom:calc(132px + env(safe-area-inset-bottom)); width:56px; height:56px; }
+.pa-reload{ right:calc(152px + env(safe-area-inset-right)); bottom:calc(104px + env(safe-area-inset-bottom)); width:56px; height:56px; }
+.pa-switch{ right:calc(214px + env(safe-area-inset-right)); bottom:calc(104px + env(safe-area-inset-bottom)); width:54px; height:54px; font-size:11px; }
+
+/* ---- weapon slots ---- */
+#pa-weapons{
+  position:absolute; left:50%; transform:translateX(-50%);
+  bottom:calc(14px + env(safe-area-inset-bottom));
+  display:flex; gap:6px; touch-action:none;
+}
+.pa-wslot{
+  width:80px; height:30px; border-radius:6px; padding:0 5px; cursor:pointer;
+  border:1px solid rgba(255,255,255,.15); background:rgba(10,14,17,.5);
+  color:#cfd8d1; font:600 10px/1 inherit; letter-spacing:.5px;
+  display:flex; align-items:center; gap:4px;
+  backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+  transition:background .12s, color .12s, border-color .12s, transform .1s;
+}
+.pa-wslot b{ color:rgba(255,255,255,.4); font-weight:600; }
+.pa-wslot.on{ background:rgba(226,232,226,.9); border-color:#fff; color:#0b0d10; }
+.pa-wslot.on b{ color:rgba(11,13,16,.45); }
+.pa-wslot.tap{ transform:scale(.94); }
+.pa-wslot span{ overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+
+/* keep the HUD clear of both thumbs */
+body.pa-touch-on #pa-badge,
+body.pa-touch-on #pa-pausehint,
+body.pa-touch-on #pa-fallback-bar,
+body.pa-touch-on #pa-frame-note{ display:none!important; }
+
+/* phones keep a compact legend: shapes only, no words */
+body.pa-touch-on #pa-maplegend{
+  left:10px; top:146px; padding:3px 6px; gap:7px; font-size:9px;
+  letter-spacing:.5px; border-radius:5px;
+}
+body.pa-touch-on #pa-maplegend .pa-lg-map{ display:none; }
+body.pa-touch-on #pa-maplegend s{ width:7px; height:7px; }
+body.pa-touch-on #bottomleft{
+  left:calc(16px + env(safe-area-inset-left));
+  bottom:calc(168px + env(safe-area-inset-bottom));
+}
+body.pa-touch-on #bottomright{
+  right:calc(16px + env(safe-area-inset-right));
+  bottom:calc(212px + env(safe-area-inset-bottom));
+}
+body.pa-touch-on #bottomright #ammo{ font-size:34px; }
+body.pa-touch-on #bottomleft #hp{ font-size:34px; }
+body.pa-touch-on #hpbar{ width:132px; }
+body.pa-touch-on #slots{ display:none; }
+body.pa-touch-on #minimap{ width:104px; height:104px; left:10px; top:38px; }
+body.pa-touch-on #portalhud{ left:10px; top:176px; font-size:10px; line-height:1.7; opacity:.8; }
+body.pa-touch-on #stats{ font-size:9px; line-height:1.5; }
+body.pa-touch-on #killfeed{ right:12px; top:56px; font-size:11px; }
+body.pa-touch-on #score{ font-size:18px; gap:9px; }
+body.pa-touch-on #goalbar .gb{ width:74px; }
+body.pa-touch-on #goalbar{ top:40px; }
+body.pa-touch-on #goaltext{ display:none; }
+body.pa-touch-on #personal{ top:58px; font-size:10px; letter-spacing:2px; }
+body.pa-touch-on #pa-topbar{ z-index:84; }
+
+/* ---------- portrait phones: stack the right-hand cluster ---------- */
+@media (orientation:portrait){
+  #pa-stick{
+    left:calc(16px + env(safe-area-inset-left));
+    bottom:calc(26px + env(safe-area-inset-bottom));
+    width:128px; height:128px;
+  }
+  #pa-fire-main{ right:calc(16px + env(safe-area-inset-right)); bottom:calc(26px + env(safe-area-inset-bottom)); width:100px; height:100px; }
+  .pa-aim{ right:calc(16px + env(safe-area-inset-right)); bottom:calc(138px + env(safe-area-inset-bottom)); width:62px; height:62px; }
+  .pa-jump{ right:calc(122px + env(safe-area-inset-right)); bottom:calc(34px + env(safe-area-inset-bottom)); width:58px; height:58px; }
+  .pa-crouch{ right:calc(122px + env(safe-area-inset-right)); bottom:calc(108px + env(safe-area-inset-bottom)); width:58px; height:58px; }
+  .pa-reload{ right:calc(186px + env(safe-area-inset-right)); bottom:calc(44px + env(safe-area-inset-bottom)); width:56px; height:56px; }
+  .pa-switch{ right:calc(186px + env(safe-area-inset-right)); bottom:calc(116px + env(safe-area-inset-bottom)); width:54px; height:54px; }
+
+  #pa-weapons{
+    left:auto; right:calc(12px + env(safe-area-inset-right)); top:38%;
+    transform:none; bottom:auto; flex-direction:column; gap:6px;
+  }
+  .pa-wslot{ width:64px; height:30px; }
+
+  body.pa-touch-on #bottomleft{ bottom:calc(160px + env(safe-area-inset-bottom)); }
+  body.pa-touch-on #bottomright{ right:calc(150px + env(safe-area-inset-right)); bottom:calc(182px + env(safe-area-inset-bottom)); }
+
+  /* start screen: keep the deploy button reachable */
+  #start .art{ flex:0 0 30vh; min-height:160px; }
+  #start .card{ padding:20px 18px calc(26px + env(safe-area-inset-bottom)); }
+  #start h1{ font-size:26px; letter-spacing:4px; }
+  #start h2{ font-size:11px; margin-bottom:16px; }
+  #start .mission{ font-size:12px; margin-bottom:12px; }
+  #start .keys{ font-size:12px; gap:3px 12px; margin-bottom:16px; }
+  #start button{ padding:14px 44px; font-size:14px; }
+  #pa-panel{ top:58px; max-height:calc(100vh - 74px); }
+  #pa-bigmap canvas{ width:min(86vw,58vh); height:min(86vw,58vh); }
+}
+
+/* ---------- short landscape: drop the portal list, lift the readouts ---------- */
+@media (max-height:560px) and (orientation:landscape){
+  body.pa-touch-on #portalhud{ display:none; }
+  body.pa-touch-on #bottomleft{ bottom:calc(146px + env(safe-area-inset-bottom)); }
+  body.pa-touch-on #bottomright{ bottom:calc(196px + env(safe-area-inset-bottom)); }
+  #pa-bigmap canvas{ height:min(66vh,72vw); width:min(66vh,72vw); }
+}
+
+/* desktop: the legend now owns the strip right below the minimap */
+#portalhud{ top:276px; }
+
+/* portrait phones: the weapon rail needs room for three-character names */
+@media (orientation:portrait){
+  .pa-wslot{ width:88px; font-size:9.5px; }
+  .pa-wslot b{ font-size:9px; }
+  /* the portal list eats a quarter of a phone screen -- keep the live ones only */
+  body.pa-touch-on #portalhud{ max-height:70px; overflow:hidden; }
+  body.pa-touch-on #portalhud div:nth-child(n+5){ display:none; }
+  body.pa-touch-on #bottomleft{ bottom:calc(196px + env(safe-area-inset-bottom)); }
+  body.pa-touch-on #bottomright{ right:calc(126px + env(safe-area-inset-right)); bottom:calc(196px + env(safe-area-inset-bottom)); }
+}
+
+/* ==========================================================
+   Landscape gate — portrait phones only
+   ========================================================== */
+#pa-rotate{
+  position:fixed; inset:0; z-index:220; display:none;
+  place-content:center; justify-items:center; text-align:center;
+  padding:calc(24px + env(safe-area-inset-top)) 24px calc(24px + env(safe-area-inset-bottom));
+  background:radial-gradient(120% 90% at 50% 0%, #16202a 0%, #0a0d11 62%, #06080a 100%);
+  color:#e8eee8; -webkit-tap-highlight-color:transparent;
+}
+#pa-rotate.on{ display:grid; }
+#pa-rotate .in{ display:grid; justify-items:center; gap:12px; max-width:320px; }
+#pa-rotate .ph{
+  width:82px; height:146px; border:2px solid #ffffff3d; border-radius:14px;
+  position:relative; background:#ffffff08; margin-bottom:4px;
+  animation:pa-rot 2.8s cubic-bezier(.6,.05,.3,.95) infinite;
+}
+#pa-rotate .ph i{
+  position:absolute; left:50%; bottom:9px; width:24px; height:3px; margin-left:-12px;
+  border-radius:2px; background:#ffffff4a;
+}
+#pa-rotate b{ font-size:19px; letter-spacing:6px; font-weight:700; color:#9fe0b4; }
+#pa-rotate p{ margin:0; font-size:12px; line-height:1.9; letter-spacing:.6px; color:#ffffffa6; }
+#pa-rotate .pa-btn{ margin-top:4px; min-width:190px; }
+#pa-rotate .skip{
+  font-size:11px; letter-spacing:1px; color:#ffffff5c; text-decoration:underline;
+  cursor:pointer; padding:9px 4px;
+}
+#pa-rotate em{ font-style:normal; font-size:11px; letter-spacing:.5px; color:#ffcb6b; min-height:15px; }
+@keyframes pa-rot{
+  0%, 34%{ transform:rotate(0deg); }
+  60%, 100%{ transform:rotate(-90deg); }
+}
+@media (orientation:landscape){ #pa-rotate{ display:none!important; } }

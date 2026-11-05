@@ -1,0 +1,58 @@
+{
+ "idle": {
+  "clip": "idle",
+  "channels": 79,
+  "frames": 49,
+  "duration": 2,
+  "file": "soldier/idle.glb",
+  "kb": 75
+ },
+ "idle_long": {
+  "clip": "idle_long",
+  "channels": 93,
+  "frames": 193,
+  "duration": 8,
+  "file": "soldier/idle_long.glb",
+  "kb": 264
+ },
+ "fire": {
+  "clip": "fire",
+  "channels": 42,
+  "frames": 4,
+  "duration": 0.125,
+  "file": "soldier/fire.glb",
+  "kb": 18
+ },
+ "reload": {
+  "clip": "reload",
+  "channels": 97,
+  "frames": 77,
+  "duration": 3.1667,
+  "file": "soldier/reload.glb",
+  "kb": 129
+ },
+ "hit": {
+  "clip": "hit",
+  "channels": 53,
+  "frames": 15,
+  "duration": 0.5833,
+  "file": "soldier/hit.glb",
+  "kb": 28
+ },
+ "run": {
+  "clip": "run",
+  "channels": 77,
+  "frames": 17,
+  "duration": 0.6667,
+  "file": "soldier/run.glb",
+  "kb": 42
+ },
+ "walk": {
+  "clip": "walk",
+  "channels": 82,
+  "frames": 33,
+  "duration": 1.3333,
+  "file": "soldier/walk.glb",
+  "kb": 61
+ }
+}

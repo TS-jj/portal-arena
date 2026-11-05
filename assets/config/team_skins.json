@@ -1,0 +1,75 @@
+{
+ "baked": 1,
+ "teams": {
+  "1": {
+   "name": "三角洲",
+   "color": [
+    0.235294,
+    0.27451,
+    0.313725
+   ],
+   "marker": [
+    0.352,
+    0.52,
+    0.688
+   ],
+   "materials": {
+    "Player_1": {
+     "map": "textures/Body_f2bd44.webp",
+     "color": [
+      1,
+      1,
+      1
+     ],
+     "metalness": 0.254,
+     "roughness": 0.919
+    },
+    "soldierHead": {
+     "map": "textures/Head_5f8cdb.webp",
+     "color": [
+      0.71698,
+      0.71698,
+      0.71698
+     ],
+     "metalness": 0.041,
+     "roughness": 0.85
+    }
+   }
+  },
+  "2": {
+   "name": "侦察队",
+   "color": [
+    1,
+    0.890196,
+    0
+   ],
+   "marker": [
+    1.0,
+    0.89459,
+    0.04
+   ],
+   "materials": {
+    "Player_1": {
+     "map": "textures/Body2.webp",
+     "color": [
+      0.91176,
+      0.91176,
+      0.91176
+     ],
+     "metalness": 0,
+     "roughness": 0.357
+    },
+    "soldierHead": {
+     "map": "textures/Head2.webp",
+     "color": [
+      1,
+      1,
+      1
+     ],
+     "metalness": 0.419,
+     "roughness": 0.574
+    }
+   }
+  }
+ }
+}

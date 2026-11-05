@@ -1,0 +1,458 @@
+{
+ "rifle": {
+  "Fire 1": {
+   "file": "rifle/Fire_1.json",
+   "duration": 0.1333,
+   "tracks": 4,
+   "events": 0
+  },
+  "Fire 2": {
+   "file": "rifle/Fire_2.json",
+   "duration": 0.1333,
+   "tracks": 4,
+   "events": 0
+  },
+  "Fire": {
+   "file": "rifle/Fire.json",
+   "duration": 0.275,
+   "tracks": 4,
+   "events": 0
+  },
+  "Reload": {
+   "file": "rifle/Reload.json",
+   "duration": 1.4833,
+   "tracks": 6,
+   "events": 3
+  },
+  "Reload2": {
+   "file": "rifle/Reload2.json",
+   "duration": 3.6667,
+   "tracks": 112,
+   "events": 2
+  },
+  "TakeIn": {
+   "file": "rifle/TakeIn.json",
+   "duration": 1.5,
+   "tracks": 4,
+   "events": 0
+  },
+  "TakeIn2": {
+   "file": "rifle/TakeIn2.json",
+   "duration": 0.6667,
+   "tracks": 108,
+   "events": 0
+  },
+  "TakeOut": {
+   "file": "rifle/TakeOut.json",
+   "duration": 1.5,
+   "tracks": 4,
+   "events": 0
+  },
+  "Template": {
+   "file": "rifle/Template.json",
+   "duration": 1,
+   "tracks": 108,
+   "events": 0
+  },
+  "mp5@draw": {
+   "file": "rifle/mp5_draw.json",
+   "duration": 0.7,
+   "tracks": 108,
+   "events": 0
+  },
+  "mp5@fire 1": {
+   "file": "rifle/mp5_fire_1.json",
+   "duration": 0.4333,
+   "tracks": 112,
+   "events": 0
+  },
+  "mp5@fire": {
+   "file": "rifle/mp5_fire.json",
+   "duration": 0.6,
+   "tracks": 110,
+   "events": 0
+  },
+  "mp5@hide": {
+   "file": "rifle/mp5_hide.json",
+   "duration": 0.7,
+   "tracks": 110,
+   "events": 0
+  },
+  "mp5@reload": {
+   "file": "rifle/mp5_reload.json",
+   "duration": 3.2,
+   "tracks": 110,
+   "events": 5
+  },
+  "rifle-reload": {
+   "file": "rifle/rifle-reload.json",
+   "duration": 0.9167,
+   "tracks": 121,
+   "events": 2
+  }
+ },
+ "pistol": {
+  "Fire": {
+   "file": "pistol/Fire.json",
+   "duration": 0.2833,
+   "tracks": 4,
+   "events": 0
+  },
+  "FireNew": {
+   "file": "pistol/FireNew.json",
+   "duration": 0.4167,
+   "tracks": 126,
+   "events": 0
+  },
+  "Reload": {
+   "file": "pistol/Reload.json",
+   "duration": 1.4667,
+   "tracks": 9,
+   "events": 3
+  },
+  "ReloadNew": {
+   "file": "pistol/ReloadNew.json",
+   "duration": 1.6667,
+   "tracks": 126,
+   "events": 5
+  },
+  "TakeIn": {
+   "file": "pistol/TakeIn.json",
+   "duration": 0.6667,
+   "tracks": 4,
+   "events": 0
+  },
+  "TakeInNew": {
+   "file": "pistol/TakeInNew.json",
+   "duration": 0.7833,
+   "tracks": 126,
+   "events": 0
+  },
+  "TakeOut": {
+   "file": "pistol/TakeOut.json",
+   "duration": 1.1667,
+   "tracks": 4,
+   "events": 0
+  },
+  "TakeOutNew": {
+   "file": "pistol/TakeOutNew.json",
+   "duration": 0.6667,
+   "tracks": 126,
+   "events": 0
+  }
+ },
+ "shotgun": {
+  "AfterReload": {
+   "file": "shotgun/AfterReload.json",
+   "duration": 0.7333,
+   "tracks": 5,
+   "events": 1
+  },
+  "AfterReloadNew": {
+   "file": "shotgun/AfterReloadNew.json",
+   "duration": 0.5,
+   "tracks": 124,
+   "events": 2
+  },
+  "Fire 1": {
+   "file": "shotgun/Fire_1.json",
+   "duration": 0.75,
+   "tracks": 124,
+   "events": 1
+  },
+  "Fire": {
+   "file": "shotgun/Fire.json",
+   "duration": 0.5,
+   "tracks": 7,
+   "events": 0
+  },
+  "Insert": {
+   "file": "shotgun/Insert.json",
+   "duration": 0.5,
+   "tracks": 4,
+   "events": 1
+  },
+  "InsertNew": {
+   "file": "shotgun/InsertNew.json",
+   "duration": 0.5,
+   "tracks": 124,
+   "events": 2
+  },
+  "StartReload 1": {
+   "file": "shotgun/StartReload_1.json",
+   "duration": 0.2667,
+   "tracks": 124,
+   "events": 1
+  },
+  "StartReload": {
+   "file": "shotgun/StartReload.json",
+   "duration": 0.5,
+   "tracks": 4,
+   "events": 1
+  },
+  "TakeIn 1": {
+   "file": "shotgun/TakeIn_1.json",
+   "duration": 0.6167,
+   "tracks": 124,
+   "events": 0
+  },
+  "TakeIn": {
+   "file": "shotgun/TakeIn.json",
+   "duration": 0.9167,
+   "tracks": 11,
+   "events": 0
+  },
+  "TakeOut 1": {
+   "file": "shotgun/TakeOut_1.json",
+   "duration": 0.5,
+   "tracks": 124,
+   "events": 0
+  },
+  "TakeOut": {
+   "file": "shotgun/TakeOut.json",
+   "duration": 1.5,
+   "tracks": 4,
+   "events": 0
+  }
+ },
+ "sniper": {
+  "Fire": {
+   "file": "sniper/Fire.json",
+   "duration": 0.9167,
+   "tracks": 6,
+   "events": 0
+  },
+  "Fire2": {
+   "file": "sniper/Fire2.json",
+   "duration": 1,
+   "tracks": 106,
+   "events": 1
+  },
+  "Fire3": {
+   "file": "sniper/Fire3.json",
+   "duration": 1,
+   "tracks": 106,
+   "events": 2
+  },
+  "Insert": {
+   "file": "sniper/Insert.json",
+   "duration": 1,
+   "tracks": 120,
+   "events": 2
+  },
+  "Reaload2": {
+   "file": "sniper/Reaload2.json",
+   "duration": 1.3,
+   "tracks": 105,
+   "events": 2
+  },
+  "Reload": {
+   "file": "sniper/Reload.json",
+   "duration": 1.6667,
+   "tracks": 12,
+   "events": 3
+  },
+  "ReloadEnd": {
+   "file": "sniper/ReloadEnd.json",
+   "duration": 1,
+   "tracks": 122,
+   "events": 2
+  },
+  "TakeIn": {
+   "file": "sniper/TakeIn.json",
+   "duration": 0.6667,
+   "tracks": 4,
+   "events": 0
+  },
+  "TakeOut": {
+   "file": "sniper/TakeOut.json",
+   "duration": 1.1667,
+   "tracks": 4,
+   "events": 0
+  },
+  "Template": {
+   "file": "sniper/Template.json",
+   "duration": 1,
+   "tracks": 120,
+   "events": 0
+  }
+ },
+ "knife": {
+  "Fire 1": {
+   "file": "knife/Fire_1.json",
+   "duration": 0.8667,
+   "tracks": 114,
+   "events": 0
+  },
+  "QuickFire": {
+   "file": "knife/QuickFire.json",
+   "duration": 0.5,
+   "tracks": 114,
+   "events": 0
+  },
+  "TakeIn 1": {
+   "file": "knife/TakeIn_1.json",
+   "duration": 0.5,
+   "tracks": 114,
+   "events": 0
+  },
+  "TakeOut 1": {
+   "file": "knife/TakeOut_1.json",
+   "duration": 0.5,
+   "tracks": 114,
+   "events": 0
+  }
+ },
+ "grenade": {
+  "FireNew - Modified": {
+   "file": "grenade/FireNew_-_Modified.json",
+   "duration": 1,
+   "tracks": 54,
+   "events": 3
+  },
+  "FireNew": {
+   "file": "grenade/FireNew.json",
+   "duration": 1,
+   "tracks": 112,
+   "events": 3
+  },
+  "ReloadNew": {
+   "file": "grenade/ReloadNew.json",
+   "duration": 0.5,
+   "tracks": 112,
+   "events": 3
+  },
+  "TakeIn New": {
+   "file": "grenade/TakeIn_New.json",
+   "duration": 0.5,
+   "tracks": 112,
+   "events": 0
+  },
+  "TakeOut New": {
+   "file": "grenade/TakeOut_New.json",
+   "duration": 0.5,
+   "tracks": 112,
+   "events": 0
+  }
+ },
+ "launcher": {
+  "launcher deploy": {
+   "file": "launcher/launcher_deploy.json",
+   "duration": 1.9667,
+   "tracks": 88,
+   "events": 0
+  },
+  "launcher fire": {
+   "file": "launcher/launcher_fire.json",
+   "duration": 1.6,
+   "tracks": 88,
+   "events": 0
+  },
+  "launcher reload": {
+   "file": "launcher/launcher_reload.json",
+   "duration": 2.4,
+   "tracks": 88,
+   "events": 4
+  }
+ },
+ "molotov": {
+  "Fire": {
+   "file": "molotov/Fire.json",
+   "duration": 1,
+   "tracks": 110,
+   "events": 5
+  },
+  "TakeIn": {
+   "file": "molotov/TakeIn.json",
+   "duration": 0.5167,
+   "tracks": 110,
+   "events": 1
+  },
+  "TakeOut": {
+   "file": "molotov/TakeOut.json",
+   "duration": 0.5,
+   "tracks": 110,
+   "events": 0
+  }
+ },
+ "fphead": {
+  "p_head_clip_in": {
+   "file": "fphead/p_head_clip_in.json",
+   "duration": 0.5833,
+   "tracks": 1,
+   "events": 0
+  },
+  "p_head_clip_out": {
+   "file": "fphead/p_head_clip_out.json",
+   "duration": 0.8333,
+   "tracks": 1,
+   "events": 0
+  },
+  "p_head_draw_weapon": {
+   "file": "fphead/p_head_draw_weapon.json",
+   "duration": 0.5,
+   "tracks": 2,
+   "events": 0
+  },
+  "p_head_idle": {
+   "file": "fphead/p_head_idle.json",
+   "duration": 0.1667,
+   "tracks": 2,
+   "events": 0
+  },
+  "p_head_insert": {
+   "file": "fphead/p_head_insert.json",
+   "duration": 0.3333,
+   "tracks": 2,
+   "events": 0
+  },
+  "p_head_reload": {
+   "file": "fphead/p_head_reload.json",
+   "duration": 1.3333,
+   "tracks": 2,
+   "events": 0
+  },
+  "p_head_reload_2": {
+   "file": "fphead/p_head_reload_2.json",
+   "duration": 0.8333,
+   "tracks": 2,
+   "events": 0
+  },
+  "p_head_shake-small": {
+   "file": "fphead/p_head_shake-small.json",
+   "duration": 0.1333,
+   "tracks": 1,
+   "events": 0
+  },
+  "p_head_shake-tiny": {
+   "file": "fphead/p_head_shake-tiny.json",
+   "duration": 0.4,
+   "tracks": 1,
+   "events": 0
+  },
+  "p_head_slide_start": {
+   "file": "fphead/p_head_slide_start.json",
+   "duration": 0.4167,
+   "tracks": 1,
+   "events": 0
+  },
+  "p_head_sniper": {
+   "file": "fphead/p_head_sniper.json",
+   "duration": 0.3333,
+   "tracks": 2,
+   "events": 0
+  },
+  "p_head_switch_weapon": {
+   "file": "fphead/p_head_switch_weapon.json",
+   "duration": 1.8,
+   "tracks": 2,
+   "events": 0
+  },
+  "p_head_throw": {
+   "file": "fphead/p_head_throw.json",
+   "duration": 0.8333,
+   "tracks": 2,
+   "events": 0
+  }
+ }
+}

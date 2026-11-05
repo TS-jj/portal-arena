@@ -1,0 +1,18 @@
+{
+  "name": "传送门战场 · PORTAL ARENA",
+  "short_name": "PORTAL ARENA",
+  "description": "4v4 第一人称团队竞技，穿越传送门，瞬移包抄，率先达成 30 次击杀。",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "scope": "./",
+  "id": "/portal-arena/",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone", "browser"],
+  "orientation": "landscape",
+  "background_color": "#0b0d10",
+  "theme_color": "#0b0d10",
+  "icons": [
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
