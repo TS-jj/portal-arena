@@ -223,6 +223,18 @@ body.pa-ingame.pa-vignette #pa-vignette{ opacity:1; }
 #cross i, #cross .dot{ background:var(--pa-cross,#e8f0e8)!important; }
 #cross i.h{ width:var(--pa-cross-len,7px)!important; height:var(--pa-cross-thick,2px)!important; }
 #cross i.v{ height:var(--pa-cross-len,7px)!important; width:var(--pa-cross-thick,2px)!important; }
+/* The game canvas is created directly under <body>. A portrait-first start can
+   leave its inline width stuck at the old viewport, painting only the left
+   half after rotation; fixed positioning + size keeps the visual full-screen. */
+body > canvas:not(#minimap){
+  position:fixed!important; inset:0!important;
+  width:100%!important; height:100%!important;
+  max-width:none!important; max-height:none!important;
+}
+@supports (height:100dvh){
+  body > canvas:not(#minimap){ height:100dvh!important; }
+}
+
 /* A CSS filter on the game canvas creates a stacking context, which would
    otherwise paint over the HUD. Keep the interface above the 3D layer. */
 #hud{ z-index:45; opacity:var(--pa-hud-op,1); }

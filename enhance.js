@@ -909,6 +909,48 @@
       }
     } catch (e) {}
 
+    /* ---------------- keep the 3D canvas filling the viewport ----------------
+       Entering from portrait and rotating soon after can give the renderer the
+       old portrait dimensions: its inline canvas width stays at e.g. 390px and
+       the rest of the landscape screen is black. CSS guarantees the visual
+       size; this also resizes the drawing buffer and camera after every likely
+       viewport change. */
+    function fitGameCanvas() {
+      var g = window.__game;
+      var r = g && g.renderer;
+      if (!r || typeof r.setSize !== 'function') return false;
+      var w = Math.max(1, Math.round(window.innerWidth || document.documentElement.clientWidth || 1));
+      var h = Math.max(1, Math.round(window.innerHeight || document.documentElement.clientHeight || 1));
+      var c = r.domElement;
+      if (c) {
+        c.style.position = 'fixed';
+        c.style.left = '0';
+        c.style.top = '0';
+        c.style.width = '100%';
+        c.style.height = '100%';
+      }
+      try { r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2)); } catch (e) {}
+      /* false: do not let three.js write a stale pixel width back inline */
+      r.setSize(w, h, false);
+      if (g.rig && typeof g.rig.resize === 'function') g.rig.resize(w / h);
+      return true;
+    }
+    function fitGameCanvasSoon() {
+      [0, 80, 260, 700, 1500].forEach(function (ms) {
+        setTimeout(fitGameCanvas, ms);
+      });
+    }
+    try { window.__paFitCanvas = fitGameCanvas; } catch (e) {}
+    window.addEventListener('resize', fitGameCanvasSoon);
+    window.addEventListener('orientationchange', fitGameCanvasSoon);
+    document.addEventListener('fullscreenchange', fitGameCanvasSoon);
+    document.addEventListener('webkitfullscreenchange', fitGameCanvasSoon);
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) fitGameCanvasSoon();
+    });
+    try { if (window.visualViewport) window.visualViewport.addEventListener('resize', fitGameCanvasSoon); } catch (e) {}
+    try { new ResizeObserver(fitGameCanvas).observe(document.documentElement); } catch (e) {}
+
     if (isFramed) body.classList.add('pa-framed');
 
     /* A missing WebGL context is the most common cause of a black screen. */
@@ -1110,6 +1152,7 @@
           body.classList.add('pa-ingame');
           body.classList.remove('pa-paused');
           closePanel();
+          fitGameCanvasSoon();
           if (touchCtl) {
             /* must run inside the tap gesture, otherwise the browser refuses fullscreen */
             try { lockLandscape(); } catch (e) {}
