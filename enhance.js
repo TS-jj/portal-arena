@@ -1057,6 +1057,21 @@
             /* must run inside the tap gesture, otherwise the browser refuses fullscreen */
             try { lockLandscape(); } catch (e) {}
             setTimeout(refreshRotate, 320);
+            /* Touch has no pointer lock: silence the module's lock request so its
+               pointerlockchange handler cannot pop the menu back over the board. */
+            try {
+              var gg = window.__game;
+              if (gg && gg.input) gg.input.lock = function () {};
+            } catch (e) {}
+            /* last resort: the match is running but the menu is still painted */
+            var unstick = function () {
+              var g2 = window.__game;
+              var st = document.getElementById('start');
+              if (!g2 || !g2.started || !st) return;
+              if (st.style.display !== 'none' && !body.classList.contains('pa-paused')) st.style.display = 'none';
+            };
+            setTimeout(unstick, 420);
+            setTimeout(unstick, 1300);
             touchCtl.start();
           } else {
             toast('WASD 移动 · 鼠标左键开火 · ESC 暂停', 3800);
