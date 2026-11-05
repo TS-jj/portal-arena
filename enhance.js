@@ -915,12 +915,15 @@
        the rest of the landscape screen is black. CSS guarantees the visual
        size; this also resizes the drawing buffer and camera after every likely
        viewport change. */
+    var lastFitW = 0, lastFitH = 0;
     function fitGameCanvas() {
       var g = window.__game;
       var r = g && g.renderer;
       if (!r || typeof r.setSize !== 'function') return false;
       var w = Math.max(1, Math.round(window.innerWidth || document.documentElement.clientWidth || 1));
       var h = Math.max(1, Math.round(window.innerHeight || document.documentElement.clientHeight || 1));
+      lastFitW = w;
+      lastFitH = h;
       var c = r.domElement;
       if (c) {
         c.style.position = 'fixed';
@@ -949,7 +952,18 @@
       if (!document.hidden) fitGameCanvasSoon();
     });
     try { if (window.visualViewport) window.visualViewport.addEventListener('resize', fitGameCanvasSoon); } catch (e) {}
+    try {
+      if (screen.orientation && screen.orientation.addEventListener) {
+        screen.orientation.addEventListener('change', fitGameCanvasSoon);
+      }
+    } catch (e) {}
     try { new ResizeObserver(fitGameCanvas).observe(document.documentElement); } catch (e) {}
+    /* WeChat's webview can rotate without delivering a resize event. This
+       low-cost watchdog only resizes when the reported viewport really changed. */
+    setInterval(function () {
+      if (document.hidden || !body.classList.contains('pa-ingame')) return;
+      if (window.innerWidth !== lastFitW || window.innerHeight !== lastFitH) fitGameCanvas();
+    }, 600);
 
     if (isFramed) body.classList.add('pa-framed');
 
