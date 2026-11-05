@@ -540,7 +540,8 @@
     if (!isTouch) return null;
 
     /* Layout follows PUBG Mobile / 和平精英 conventions:
-         left  — analogue move wheel, thumb never leaves the corner
+         left  — analogue move wheel, thumb never leaves the corner,
+                 plus a second fire key right above it (both thumbs can shoot)
          right — one big fire button, with aim / jump / crouch / reload in reach
          rail  — four weapon slots, tap to swap (no hidden wheel gestures) */
     var wrap = el('div'); wrap.id = 'pa-touch';
@@ -553,7 +554,8 @@
         '<button class="pa-wslot" data-w="2" type="button"><b>3</b><span>霰弹</span></button>' +
         '<button class="pa-wslot" data-w="3" type="button"><b>4</b><span>狙击</span></button>' +
       '</div>' +
-      '<button class="pa-tb pa-fire-main" data-tb="fire" type="button">开火</button>' +
+      '<button class="pa-tb fire pa-fire-main" data-tb="fire" type="button">开火</button>' +
+      '<button class="pa-tb fire pa-fire-alt" data-tb="fire" type="button">开火</button>' +
       '<button class="pa-tb pa-aim" data-tb="aim" type="button">开镜</button>' +
       '<button class="pa-tb pa-jump" data-tb="jump" type="button">跳跃</button>' +
       '<button class="pa-tb pa-crouch" data-tb="crouch" type="button">蹲下</button>' +
@@ -680,10 +682,38 @@
 
     /* ---- action buttons ---- */
     var pressedAt = {};
+    var fireHolders = 0, fireDownAt = 0, fireTapToken = 0;
+
+    /* Two fire keys share one trigger: pressing either shoots, and letting go of
+       one while the other is still held must not stop the burst. */
+    function fireStart() {
+      var i = getInput(); if (!i) return;
+      fireHolders++;
+      i.buttons.add(0);
+      i.clicked.add(0);
+      if (fireHolders === 1) fireDownAt = performance.now();
+    }
+    function fireStop() {
+      var i = getInput(); if (!i) return;
+      if (fireHolders > 0) fireHolders--;
+      if (fireHolders > 0) return;
+      i.buttons.delete(0);
+      /* A tap can start and end between two frames, so the game never sees a
+         trigger pull. Hold the button virtually for a few frames instead. */
+      if (performance.now() - fireDownAt < 110) {
+        var tok = ++fireTapToken;
+        i.buttons.add(0);
+        setTimeout(function () {
+          if (fireTapToken !== tok) return;
+          if (fireHolders > 0) return;
+          var j = getInput(); if (j) j.buttons.delete(0);
+        }, 110);
+      }
+    }
     function press(btn) {
       var i = getInput(); if (!i) return;
       var a = btn.getAttribute('data-tb');
-      if (a === 'fire') { fireDownAt = performance.now(); i.buttons.add(0); i.clicked.add(0); }
+      if (a === 'fire') { fireStart(); }
       else if (a === 'aim') { i.buttons.add(2); i.clicked.add(2); pressedAt.aim = performance.now(); }
       else if (a === 'jump') {
         i.keys.add('Space'); i.pressed.add('Space');
@@ -697,23 +727,10 @@
         btn.classList.toggle('latched', crouched);
       }
     }
-    var fireDownAt = 0, fireTapToken = 0;
     function release(btn) {
       var i = getInput(); if (!i) return;
       var a = btn.getAttribute('data-tb');
-      if (a === 'fire') {
-        i.buttons.delete(0);
-        /* A tap can start and end between two frames, so the game never sees a
-           trigger pull. Hold the button virtually for ~3 frames instead. */
-        if (performance.now() - fireDownAt < 110) {
-          var tok = ++fireTapToken;
-          i.buttons.add(0);
-          setTimeout(function () {
-            if (fireTapToken !== tok) return;
-            var j = getInput(); if (j) j.buttons.delete(0);
-          }, 110);
-        }
-      }
+      if (a === 'fire') { fireStop(); }
       else if (a === 'aim') {
         i.buttons.delete(2);
         i.released.set(2, performance.now() - (pressedAt.aim || performance.now()));
@@ -725,17 +742,22 @@
         var a = btn.getAttribute('data-tb');
         btn.addEventListener('pointerdown', function (e) {
           e.preventDefault(); e.stopPropagation();
+          if (btn.__held) return;                   /* ignore a second finger */
+          btn.__held = true;
           btn.classList.add('on');
           try { btn.setPointerCapture(e.pointerId); } catch (x) {}
           press(btn);
         });
         var up = function (e) {
           if (a === 'crouch') return;                 /* crouch is a latch, not a hold */
+          if (!btn.__held) return;
+          btn.__held = false;
           btn.classList.remove('on');
           release(btn);
         };
         btn.addEventListener('pointerup', up);
         btn.addEventListener('pointercancel', up);
+        btn.addEventListener('lostpointercapture', up);
       })(allBtns[b]);
     }
 
@@ -753,11 +775,14 @@
         document.body.classList.add('pa-touch-on');
         var i = getInput(); if (i) i.locked = true;
         crouched = false;
+        fireHolders = 0;
         syncWeapons();
-        toast('左摇杆移动 · 右侧拖动转视角 · 开火键射击 · 底部数字键换枪', 5600);
+        toast('左摇杆移动 · 左侧开火键（摇杆上方）· 右侧拖动转视角', 5600);
       },
       stop: function () {
         document.body.classList.remove('pa-touch-on');
+        fireHolders = 0;
+        var i = getInput(); if (i) i.buttons.delete(0);
       }
     };
   }
@@ -1220,9 +1245,9 @@
       if (isTouch) {
         var keys = card.querySelector('.keys');
         if (keys) {
-          keys.innerHTML = '<b>左摇杆</b><span>移动 / 冲刺</span>' +
+          keys.innerHTML =             '<b>左摇杆</b><span>移动 / 冲刺</span>' +
             '<b>右半屏拖动</b><span>转视角</span>' +
-            '<b>开火键</b><span>射击</span>' +
+            '<b>开火键 ×2</b><span>左手 / 右手都能射击</span>' +
             '<b>瞄准键</b><span>举镜</span>' +
             '<b>跳 / 蹲</b><span>跳跃 / 蹲伏</span>' +
             '<b>换弹 / 换枪</b><span>弹药与武器</span>';

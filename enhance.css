@@ -460,12 +460,17 @@ body.pa-istouch.pa-ingame #pa-toast{
 }
 .pa-tb.fire.on{ background:rgba(224,106,90,.46); }
 
-.pa-fire-main{ right:calc(18px + env(safe-area-inset-right)); bottom:calc(18px + env(safe-area-inset-bottom)); width:104px; height:104px; font-size:14px; }
-.pa-aim{ right:calc(132px + env(safe-area-inset-right)); bottom:calc(22px + env(safe-area-inset-bottom)); width:64px; height:64px; }
-.pa-jump{ right:calc(22px + env(safe-area-inset-right)); bottom:calc(132px + env(safe-area-inset-bottom)); width:56px; height:56px; }
-.pa-crouch{ right:calc(86px + env(safe-area-inset-right)); bottom:calc(132px + env(safe-area-inset-bottom)); width:56px; height:56px; }
-.pa-reload{ right:calc(152px + env(safe-area-inset-right)); bottom:calc(104px + env(safe-area-inset-bottom)); width:56px; height:56px; }
-.pa-switch{ right:calc(214px + env(safe-area-inset-right)); bottom:calc(104px + env(safe-area-inset-bottom)); width:54px; height:54px; font-size:11px; }
+/* Right-hand cluster sits a thumb-width in from the corner: flush against the
+   bezel the fire key lands under the palm on a wet-screen phone. */
+.pa-fire-main{ right:calc(30px + env(safe-area-inset-right)); bottom:calc(42px + env(safe-area-inset-bottom)); width:98px; height:98px; font-size:14px; }
+/* second fire key, above the move wheel — the left thumb does not have to
+   leave the stick to shoot */
+.pa-fire-alt{ left:calc(24px + env(safe-area-inset-left)); bottom:calc(174px + env(safe-area-inset-bottom)); width:78px; height:78px; font-size:13px; }
+.pa-aim{ right:calc(140px + env(safe-area-inset-right)); bottom:calc(34px + env(safe-area-inset-bottom)); width:62px; height:62px; }
+.pa-jump{ right:calc(30px + env(safe-area-inset-right)); bottom:calc(156px + env(safe-area-inset-bottom)); width:54px; height:54px; }
+.pa-crouch{ right:calc(92px + env(safe-area-inset-right)); bottom:calc(156px + env(safe-area-inset-bottom)); width:54px; height:54px; }
+.pa-reload{ right:calc(158px + env(safe-area-inset-right)); bottom:calc(104px + env(safe-area-inset-bottom)); width:54px; height:54px; }
+.pa-switch{ right:calc(218px + env(safe-area-inset-right)); bottom:calc(104px + env(safe-area-inset-bottom)); width:52px; height:52px; font-size:11px; }
 
 /* ---- weapon slots ---- */
 #pa-weapons{
@@ -495,15 +500,18 @@ body.pa-touch-on #pa-frame-note{ display:none!important; }
 
 /* phones keep a compact legend: shapes only, no words */
 body.pa-touch-on #pa-maplegend{
-  left:10px; top:146px; padding:3px 6px; gap:7px; font-size:9px;
+  left:calc(112px + env(safe-area-inset-left)); top:146px; padding:3px 6px; gap:7px; font-size:9px;
   letter-spacing:.5px; border-radius:5px;
 }
 body.pa-touch-on #pa-maplegend .pa-lg-map{ display:none; }
 body.pa-touch-on #pa-maplegend s{ width:7px; height:7px; }
+/* health moves to the bottom centre so the left column is free for the
+   second fire key — PUBG keeps it right above the weapon slots too */
 body.pa-touch-on #bottomleft{
-  left:calc(16px + env(safe-area-inset-left));
-  bottom:calc(168px + env(safe-area-inset-bottom));
+  left:50%; transform:translateX(-50%); text-align:center;
+  bottom:calc(52px + env(safe-area-inset-bottom));
 }
+body.pa-touch-on #hpbar{ margin-left:auto; margin-right:auto; }
 body.pa-touch-on #bottomright{
   right:calc(16px + env(safe-area-inset-right));
   bottom:calc(212px + env(safe-area-inset-bottom));
@@ -530,12 +538,13 @@ body.pa-touch-on #pa-topbar{ z-index:84; }
     bottom:calc(26px + env(safe-area-inset-bottom));
     width:128px; height:128px;
   }
-  #pa-fire-main{ right:calc(16px + env(safe-area-inset-right)); bottom:calc(26px + env(safe-area-inset-bottom)); width:100px; height:100px; }
-  .pa-aim{ right:calc(16px + env(safe-area-inset-right)); bottom:calc(138px + env(safe-area-inset-bottom)); width:62px; height:62px; }
-  .pa-jump{ right:calc(122px + env(safe-area-inset-right)); bottom:calc(34px + env(safe-area-inset-bottom)); width:58px; height:58px; }
-  .pa-crouch{ right:calc(122px + env(safe-area-inset-right)); bottom:calc(108px + env(safe-area-inset-bottom)); width:58px; height:58px; }
-  .pa-reload{ right:calc(186px + env(safe-area-inset-right)); bottom:calc(44px + env(safe-area-inset-bottom)); width:56px; height:56px; }
-  .pa-switch{ right:calc(186px + env(safe-area-inset-right)); bottom:calc(116px + env(safe-area-inset-bottom)); width:54px; height:54px; }
+  .pa-fire-main{ right:calc(24px + env(safe-area-inset-right)); bottom:calc(44px + env(safe-area-inset-bottom)); width:96px; height:96px; }
+  .pa-fire-alt{ left:calc(24px + env(safe-area-inset-left)); bottom:calc(170px + env(safe-area-inset-bottom)); width:74px; height:74px; }
+  .pa-aim{ right:calc(24px + env(safe-area-inset-right)); bottom:calc(146px + env(safe-area-inset-bottom)); width:62px; height:62px; }
+  .pa-jump{ right:calc(128px + env(safe-area-inset-right)); bottom:calc(48px + env(safe-area-inset-bottom)); width:58px; height:58px; }
+  .pa-crouch{ right:calc(128px + env(safe-area-inset-right)); bottom:calc(122px + env(safe-area-inset-bottom)); width:58px; height:58px; }
+  .pa-reload{ right:calc(186px + env(safe-area-inset-right)); bottom:calc(58px + env(safe-area-inset-bottom)); width:56px; height:56px; }
+  .pa-switch{ right:calc(186px + env(safe-area-inset-right)); bottom:calc(130px + env(safe-area-inset-bottom)); width:54px; height:54px; }
 
   #pa-weapons{
     left:auto; right:calc(12px + env(safe-area-inset-right)); top:38%;
@@ -543,7 +552,10 @@ body.pa-touch-on #pa-topbar{ z-index:84; }
   }
   .pa-wslot{ width:64px; height:30px; }
 
-  body.pa-touch-on #bottomleft{ bottom:calc(160px + env(safe-area-inset-bottom)); }
+  body.pa-touch-on #bottomleft{
+    left:calc(16px + env(safe-area-inset-left)); transform:none; text-align:left;
+    bottom:calc(256px + env(safe-area-inset-bottom));
+  }
   body.pa-touch-on #bottomright{ right:calc(150px + env(safe-area-inset-right)); bottom:calc(182px + env(safe-area-inset-bottom)); }
 
   /* start screen: keep the deploy button reachable */
@@ -561,8 +573,6 @@ body.pa-touch-on #pa-topbar{ z-index:84; }
 /* ---------- short landscape: drop the portal list, lift the readouts ---------- */
 @media (max-height:560px) and (orientation:landscape){
   body.pa-touch-on #portalhud{ display:none; }
-  body.pa-touch-on #bottomleft{ bottom:calc(146px + env(safe-area-inset-bottom)); }
-  body.pa-touch-on #bottomright{ bottom:calc(196px + env(safe-area-inset-bottom)); }
   #pa-bigmap canvas{ height:min(66vh,72vw); width:min(66vh,72vw); }
 }
 
@@ -576,7 +586,10 @@ body.pa-touch-on #pa-topbar{ z-index:84; }
   /* the portal list eats a quarter of a phone screen -- keep the live ones only */
   body.pa-touch-on #portalhud{ max-height:70px; overflow:hidden; }
   body.pa-touch-on #portalhud div:nth-child(n+5){ display:none; }
-  body.pa-touch-on #bottomleft{ bottom:calc(196px + env(safe-area-inset-bottom)); }
+  body.pa-touch-on #bottomleft{
+    left:calc(16px + env(safe-area-inset-left)); transform:none; text-align:left;
+    bottom:calc(256px + env(safe-area-inset-bottom));
+  }
   body.pa-touch-on #bottomright{ right:calc(126px + env(safe-area-inset-right)); bottom:calc(196px + env(safe-area-inset-bottom)); }
 }
 
