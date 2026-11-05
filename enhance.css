@@ -411,7 +411,20 @@ s.big{ background:#9fb4a4; clip-path:polygon(0 0, 45% 0, 55% 100%, 100% 100%, 10
 }
 body.pa-touch-on #pa-touch{ display:block; }
 
-#pa-look{ position:absolute; inset:0; }
+#pa-look{ position:absolute; inset:0; touch-action:none; }
+
+/* backdrop-filter over a live WebGL canvas forces an extra full-screen blur
+   pass every frame. It looks the same with translucent fills on a phone and
+   costs a surprising amount of GPU time, so drop it during touch gameplay. */
+body.pa-istouch.pa-ingame #pa-touch *,
+body.pa-istouch.pa-ingame #hud *,
+body.pa-istouch.pa-ingame #pa-topbar,
+body.pa-istouch.pa-ingame #pa-topbar *,
+body.pa-istouch.pa-ingame #pa-maplegend,
+body.pa-istouch.pa-ingame #pa-toast{
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
 
 #pa-stick{
   position:absolute; left:calc(18px + env(safe-area-inset-left));

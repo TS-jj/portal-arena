@@ -18,7 +18,7 @@
   var DEFAULTS = {
     cross: '#e8f0e8', crossLen: 7, crossThick: 2, sensitivity: 3,
     hudOp: 100, brightness: 100, contrast: 100, saturate: 100,
-    volume: 68, soft: 65, lowfx: isTouch,
+    volume: 68, soft: 65, lowfx: isTouch, ambient: false,
     minimap: true, stats: !isTouch, markers: true, vignette: false, audioRev: 2
   };
   var S = (function () {
@@ -39,6 +39,15 @@
   })();
   var currentVolume = S.volume / 100;
   var softness = Math.max(0, Math.min(100, Number(S.soft)));
+  /* Dynamic-resolution factor, lowered only when the phone cannot hold a
+     comfortable frame rate. Phones start at 1 CSS pixel per pixel in lowfx. */
+  var autoDprScale = 1;
+  function preferredPixelRatio() {
+    var dpr = window.devicePixelRatio || 1;
+    var cap = S.lowfx ? (isTouch ? 1 : 1.25) : 2;
+    var ratio = Math.min(dpr, cap) * (isTouch ? autoDprScale : 1);
+    return Math.max(0.7, ratio);
+  }
 
   /* ---------------- audio: one master chain for every sound ----------------
      The game feeds all of its audio into THREE.AudioListener -> context.destination.
@@ -144,6 +153,52 @@
   }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 
+  /* The portal hum is a looping 96 Hz drone with buzzy overtones. It follows
+     the portal's open/close cycle, so simply muting it once is not enough:
+     wrap play() as well and stop every live PositionalAudio node. */
+  function applyAmbient(g) {
+    g = g || window.__game;
+    var fx = g && g.portals && g.portals._fx;
+    if (!fx || !fx.length) return;
+    var slots = g.portals._slots || [];
+    for (var i = 0; i < fx.length; i++) {
+      var hums = fx[i].hums || [];
+      var active = false;
+      for (var s = 0; s < slots.length; s++) {
+        if (slots[s].pair === i && slots[s].phase !== 'closed') { active = true; break; }
+      }
+      for (var j = 0; j < hums.length; j++) {
+        var h = hums[j];
+        if (!h.__paHumWrapped) {
+          h.__paHumWrapped = true;
+          h.__paHumPlay = h.play;
+          h.play = function () {
+            if (!S.ambient) return;
+            return this.__paHumPlay.apply(this, arguments);
+          };
+        }
+        var vol = S.ambient ? 0.055 : 0;
+        try { h.setVolume(vol); } catch (e) {}
+        /* setTargetAtTime waits for the audio graph; set the value as well so
+           muting is immediate even when the context is just waking up. */
+        try { if (h.gain && h.gain.gain) h.gain.gain.value = vol; } catch (e) {}
+        if (!S.ambient) {
+          if (h.isPlaying) { try { h.stop(); } catch (e) {} }
+        } else if (active && !h.isPlaying) {
+          try { h.play(); } catch (e) {}
+        }
+      }
+    }
+  }
+  try {
+    window.__paSetAmbient = function (on) {
+      S.ambient = !!on;
+      save();
+      applyAmbient();
+      syncControls();
+    };
+  } catch (e) {}
+
   /* The game exposes its instance on window.__game; its input object owns
      the real mouse sensitivity, so this setting changes actual handling. */
   /* Phones have far less GPU headroom than a desktop. Capping the back buffer
@@ -154,11 +209,40 @@
     if (g.renderer.__paPerf === want) return;
     try {
       var r = g.renderer;
-      r.setPixelRatio(Math.min(window.devicePixelRatio || 1, S.lowfx ? 1.25 : 2));
+      r.setPixelRatio(preferredPixelRatio());
       if (r.shadowMap) r.shadowMap.enabled = !S.lowfx;
       r.__paPerf = want;
       window.dispatchEvent(new Event('resize'));
     } catch (e) {}
+  }
+
+  /* DOM world labels and the 2D minimap used to refresh 60 times a second.
+     That is wasted layout/paint work on a phone: 20 fps labels and 15 fps map
+     are visually indistinguishable during a firefight. */
+  function hookHotPaths(g) {
+    if (!g || g.__paHotHooked || (!isTouch && !S.lowfx)) return;
+    var hud = g.hud, mini = g.minimap;
+    if (!hud && !mini) return;
+    g.__paHotHooked = true;
+    var now = function () { return (window.performance && performance.now) ? performance.now() : Date.now(); };
+    if (hud && typeof hud.markers === 'function') {
+      var origMarkers = hud.markers, lastMarkers = -1e9;
+      hud.markers = function () {
+        var t = now();
+        if (t - lastMarkers < 48) return;
+        lastMarkers = t;
+        return origMarkers.apply(this, arguments);
+      };
+    }
+    if (mini && typeof mini.update === 'function') {
+      var origMini = mini.update, lastMini = -1e9;
+      mini.update = function () {
+        var t = now();
+        if (t - lastMini < 66) return;
+        lastMini = t;
+        return origMini.apply(this, arguments);
+      };
+    }
   }
 
   function applyGameSettings() {
@@ -168,6 +252,8 @@
       if (g.input) g.input.sensitivity = Number(S.sensitivity);
       hookGameAudio(g);
       applyPerf(g);
+      hookHotPaths(g);
+      applyAmbient(g);
     } catch (e) { /* game may not be constructed yet */ }
   }
 
@@ -232,8 +318,8 @@
   ];
   var TOGGLES = [
     ['minimap', '小地图'], ['stats', '性能信息'],
-    ['markers', '队友标记'], ['vignette', '电影暗角'],
-    ['lowfx', '省电模式']
+    ['markers', '队友标记'], ['ambient', '环境嗡鸣'],
+    ['vignette', '电影暗角'], ['lowfx', '省电模式']
   ];
 
   function panelHTML() {
@@ -287,8 +373,12 @@
     r.setProperty('--pa-minimap', S.minimap ? 'block' : 'none');
     r.setProperty('--pa-stats', S.stats ? 'block' : 'none');
     r.setProperty('--pa-markers', S.markers ? 'block' : 'none');
-    r.setProperty('--pa-filter', 'brightness(' + S.brightness + '%) contrast(' + S.contrast +
-      '%) saturate(' + S.saturate + '%)');
+    var f = [];
+    if (Number(S.brightness) !== 100) f.push('brightness(' + S.brightness + '%)');
+    if (Number(S.contrast) !== 100) f.push('contrast(' + S.contrast + '%)');
+    if (Number(S.saturate) !== 100) f.push('saturate(' + S.saturate + '%)');
+    /* An identity CSS filter still forces a full-screen GPU pass per frame. */
+    r.setProperty('--pa-filter', f.length ? f.join(' ') : 'none');
     document.body.classList.toggle('pa-vignette', !!S.vignette);
     setVolume(S.volume / 100);
     setTone(S.soft);
@@ -932,7 +1022,7 @@
         c.style.width = '100%';
         c.style.height = '100%';
       }
-      try { r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2)); } catch (e) {}
+      try { r.setPixelRatio(preferredPixelRatio()); } catch (e) {}
       /* false: do not let three.js write a stale pixel width back inline */
       r.setSize(w, h, false);
       if (g.rig && typeof g.rig.resize === 'function') g.rig.resize(w / h);
@@ -964,6 +1054,35 @@
       if (document.hidden || !body.classList.contains('pa-ingame')) return;
       if (window.innerWidth !== lastFitW || window.innerHeight !== lastFitH) fitGameCanvas();
     }, 600);
+
+    /* If the phone still cannot hold ~40 fps (heavy scene, throttled GPU, hot
+       device), step the internal resolution down instead of letting aiming
+       stutter. Never raises it back mid-match, which would cause an FPS sawtooth. */
+    var slowSamples = 0, qualityNotified = false;
+    try {
+      window.__paPerfInfo = function () {
+        var g2 = window.__game;
+        return { scale: autoDprScale, fps: g2 ? g2._fps : 0, ratio: preferredPixelRatio() };
+      };
+    } catch (e) {}
+    setInterval(function () {
+      if (document.hidden || !body.classList.contains('pa-ingame')) return;
+      var g2 = window.__game;
+      if (!g2 || !g2.renderer || !g2._fps) return;
+      var fps = Number(g2._fps) || 0;
+      if (fps < 38) slowSamples++;
+      else if (fps > 48) slowSamples = Math.max(0, slowSamples - 1);
+      if (slowSamples >= 2 && autoDprScale > 0.701) {
+        autoDprScale = Math.max(0.7, autoDprScale - 0.14);
+        try { if (g2.renderer.shadowMap) g2.renderer.shadowMap.enabled = false; } catch (e) {}
+        fitGameCanvas();
+        slowSamples = 0;
+        if (!qualityNotified) {
+          qualityNotified = true;
+          toast('已自动优化清晰度以保持流畅', 2800);
+        }
+      }
+    }, 2500);
 
     if (isFramed) body.classList.add('pa-framed');
 
