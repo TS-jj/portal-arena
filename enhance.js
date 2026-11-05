@@ -785,32 +785,49 @@
     try { rotSkipped = sessionStorage.getItem('pa.portraitok') === '1'; } catch (e) {}
 
     function isPortrait() {
+      /* Viewport dimensions reflect a real rotation even in browsers whose
+         orientation media query / Screen Orientation API updates late. */
+      var w = window.innerWidth, h = window.innerHeight;
+      if (w > 0 && h > 0) return h > w;
       try { if (window.matchMedia) return window.matchMedia('(orientation: portrait)').matches; } catch (e) {}
-      return window.innerHeight > window.innerWidth;
+      return true;
     }
     function lockLandscape() {
-      var ok = false;
-      function tryLock() {
-        var so = screen.orientation || screen.msOrientation || null;
-        if (!so || typeof so.lock !== 'function') return false;
-        try {
-          var p = so.lock('landscape');
-          if (p && p.catch) p.catch(function () {});
-          return true;
-        } catch (e) { return false; }
-      }
-      try {
-        var root = document.documentElement;
-        var req = root.requestFullscreen || root.webkitRequestFullscreen;
-        if (req && !document.fullscreenElement && !document.webkitFullscreenElement) {
-          var r = req.call(root, { navigationUI: 'hide' });
-          if (r && r.then) r.then(function () { tryLock(); }, function () { tryLock(); });
-          else { tryLock(); }
-        } else {
-          ok = tryLock();
+      /* Some embedded Android browsers leave either of these promises pending
+         forever. Always settle, otherwise the rotate sheet says "switching"
+         for the rest of the session. */
+      return new Promise(function (resolve) {
+        var settled = false;
+        var timer = setTimeout(function () { finish(false); }, 1800);
+        function finish(ok) {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timer);
+          resolve(!!ok);
         }
-      } catch (e) { tryLock(); }
-      return ok;
+        function tryLock() {
+          var so = screen.orientation || screen.msOrientation || null;
+          if (!so || typeof so.lock !== 'function') { finish(false); return; }
+          try {
+            var p = so.lock('landscape');
+            if (p && p.then) p.then(function () { finish(true); }, function () { finish(false); });
+            else finish(true);
+          } catch (e) { finish(false); }
+        }
+        try {
+          var root = document.documentElement;
+          var req = root.requestFullscreen || root.webkitRequestFullscreen;
+          if (req && !document.fullscreenElement && !document.webkitFullscreenElement) {
+            var r;
+            try { r = req.call(root, { navigationUI: 'hide' }); }
+            catch (e) { r = req.call(root); }
+            if (r && r.then) r.then(tryLock, tryLock);
+            else setTimeout(tryLock, 80);
+          } else {
+            tryLock();
+          }
+        } catch (e) { finish(false); }
+      });
     }
     try { window.__paLockLandscape = lockLandscape; } catch (e) {}
 
@@ -819,17 +836,27 @@
       '<div class="ph"><i></i></div>' +
       '<b>请横屏游玩</b>' +
       '<p>横屏才有完整视野和双手操作区。<br>浏览器不允许网页自行旋转屏幕，需要把手机横过来。</p>' +
-      '<button class="pa-btn primary" data-act="lock">全屏并尝试锁定横屏</button>' +
-      '<span class="skip" data-act="skip">继续竖屏（简化布局）</span>' +
+      '<button class="pa-btn primary" data-act="lock">全屏并尝试横屏</button>' +
+      '<span class="skip" data-act="skip">横屏没反应？继续竖屏</span>' +
       '<em id="pa-rotate-note"></em>' +
       '</div>';
     body.appendChild(rot);
 
+    var rotBusy = false;
     function refreshRotate() {
       if (!isTouch) { rot.classList.remove('on'); return; }
-      var on = isPortrait() && !rotSkipped;
+      var portrait = isPortrait();
+      var on = portrait && !rotSkipped;
       rot.classList.toggle('on', on);
       body.classList.toggle('pa-portrait', on);
+      if (!portrait) {
+        /* A real rotation cancels any pending request and its status text. */
+        rotBusy = false;
+        var readyBtn = rot.querySelector('[data-act="lock"]');
+        var readyNote = document.getElementById('pa-rotate-note');
+        if (readyBtn) readyBtn.disabled = false;
+        if (readyNote) readyNote.textContent = '';
+      }
     }
     rot.addEventListener('click', function (e) {
       var a = e.target.getAttribute && e.target.getAttribute('data-act');
@@ -839,20 +866,46 @@
         refreshRotate();
         toast('已切换为竖屏布局 · 建议横屏获得完整视野', 3000);
       } else if (a === 'lock') {
-        var supported = lockLandscape();
+        if (rotBusy) return;
+        rotBusy = true;
+        var btn = rot.querySelector('[data-act="lock"]');
         var note = document.getElementById('pa-rotate-note');
-        if (note) note.textContent = supported
-          ? '正在切换横屏…'
-          : '当前浏览器不支持自动锁定，请手动把手机横过来';
-        setTimeout(refreshRotate, 400);
+        if (btn) btn.disabled = true;
+        if (note) note.textContent = '正在请求全屏和横屏…';
+        var finished = false;
+        function done(ok) {
+          if (finished) return;
+          finished = true;
+          rotBusy = false;
+          if (btn) btn.disabled = false;
+          refreshRotate();
+          if (!isPortrait()) { if (note) note.textContent = ''; return; }
+          if (note) note.textContent = ok
+            ? '已请求横屏；若仍未转动，请开启系统自动旋转并横握手机'
+            : '浏览器未允许自动横屏。请开启系统自动旋转后横握手机，或点下方继续竖屏';
+        }
+        try {
+          var result = lockLandscape();
+          if (result && result.then) result.then(done, function () { done(false); });
+          else done(!!result);
+        } catch (er) { done(false); }
+        setTimeout(function () { done(false); }, 2300);
       }
     });
     refreshRotate();
-    window.addEventListener('orientationchange', function () { setTimeout(refreshRotate, 160); });
+    window.addEventListener('orientationchange', function () {
+      refreshRotate();
+      setTimeout(refreshRotate, 120);
+      setTimeout(refreshRotate, 450);
+    });
     window.addEventListener('resize', refreshRotate);
+    try { if (window.visualViewport) window.visualViewport.addEventListener('resize', refreshRotate); } catch (e) {}
     try {
       if (screen.orientation && screen.orientation.addEventListener) {
-        screen.orientation.addEventListener('change', function () { setTimeout(refreshRotate, 120); });
+        screen.orientation.addEventListener('change', function () {
+          refreshRotate();
+          setTimeout(refreshRotate, 120);
+        });
       }
     } catch (e) {}
 
