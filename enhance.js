@@ -1035,16 +1035,20 @@
       var play = document.getElementById('play');
       var inGame = false;
       if (play) {
-        /* 16 MB of assets takes a while on a phone connection — a tap before the
-           last file arrives used to do nothing at all, which reads as "broken". */
-        if (!done) {
+        /* 16 MB of assets takes a while on a phone connection, and the button the
+           module wires last is the only real "ready" signal: it assigns
+           play.onclick right after init() resolves. Tapping before that used to
+           do nothing at all, which reads as "broken". */
+        if (typeof play.onclick !== 'function') {
           play.disabled = true;
+          var gateT0 = Date.now();
           var readyTimer = setInterval(function () {
-            if (!done) return;
+            var ok = typeof play.onclick === 'function' || Date.now() - gateT0 > 90000;
+            if (!ok) return;
             clearInterval(readyTimer);
             play.disabled = false;
             play.textContent = '部署';
-          }, 300);
+          }, 250);
         }
         play.addEventListener('click', function () {
           if (!done) { toast('战场资源加载中 · 请稍候再部署', 2200); return; }
